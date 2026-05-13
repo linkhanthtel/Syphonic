@@ -1,0 +1,61 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1 class="mb-3">Users</h1>
+@if (!ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+}
+<p class="text-muted mb-4">Elevate collaborators to Administrators or revoke access to that role anytime.</p>
+
+<div class="table-responsive shadow-sm">
+    <table class="table align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Display name</th>
+            <th scope="col">Roles</th>
+            <th scope="col" class="text-end">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td class="fw-semibold">@row.Email</td>
+                <td>@(string.IsNullOrWhiteSpace(row.DisplayName) ? "—" : row.DisplayName)</td>
+                <td>
+                    @if (row.IsAdmin)
+                    {
+                        <span class="badge text-bg-dark">Administrator</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-light text-muted border">Learner</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <form method="post" asp-page-handler="ToggleAdmin" class="d-inline">
+                        <input type="hidden" name="userId" value="@row.Id"/>
+                        @if (!row.CanToggle)
+                        {
+                            <button type="button" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Cannot change self</button>
+                        }
+                        else if (row.IsAdmin)
+                        {
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Remove Admin</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Make Admin</button>
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

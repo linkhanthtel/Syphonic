@@ -1,0 +1,72 @@
+@page "/Lessons/{slug}"
+@model DetailModel
+@{
+    ViewData["Title"] = Model.Lesson?.Title ?? "Lesson";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+@if (Model.Lesson is null)
+{
+    <div class="alert alert-warning mb-0">Lesson not found.</div>
+}
+else
+{
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-page="Index">Lessons</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Lesson.Title</li>
+        </ol>
+    </nav>
+
+    <article class="mt-3">
+        <header class="mb-4">
+            <h1 class="mb-2">@Model.Lesson.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(Model.Lesson.Summary))
+            {
+                <p class="lead text-muted mb-0">@Model.Lesson.Summary</p>
+            }
+        </header>
+        @if (!Model.Lesson.Published && User.IsInRole("Admin"))
+        {
+            <div class="alert alert-secondary">Draft (visible to admins only).</div>
+        }
+
+        <div class="lesson-body border rounded bg-body-secondary p-4 mb-4" style="white-space: pre-wrap;">@Model.Lesson.Content</div>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <section class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center">
+                <div>
+                    @if (Model.IsCompleted)
+                    {
+                        <span class="badge text-bg-success">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-light text-muted border">In progress</span>
+                    }
+                </div>
+                @if (!Model.IsCompleted)
+                {
+                    <form method="post" asp-page-handler="Complete" class="mb-0">
+                        <input type="hidden" name="slug" value="@Model.Lesson.Slug" />
+                        <button type="submit" class="btn btn-primary">Mark as complete</button>
+                    </form>
+                }
+            </section>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                <a asp-area="Identity" asp-page="/Account/Register">Create a free account</a>
+                or
+                <a asp-area="Identity" asp-page="/Account/Login">log in</a>
+                to track completion.
+            </p>
+        }
+    </article>
+}

@@ -1,0 +1,49 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Learn";
+}
+<h1 class="mb-3">How Syphonic teaches geography</h1>
+<p class="lead">
+    Geography rewards pattern recognition across maps and memory. Syphonic organizes short lessons around real places so knowledge sticks.
+</p>
+
+<div class="row g-4 mt-3">
+    <div class="col-md-6">
+        <article class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Paced lessons</h2>
+                <p class="card-text mb-0">Each lesson is a single bite—capitals, biomes, regions, waterways—paired with maps you'll grow over time.</p>
+            </div>
+        </article>
+    </div>
+    <div class="col-md-6">
+        <article class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Visible progress</h2>
+                <p class="card-text mb-0">Your dashboard shows completed lessons and recent activity once you register. Anonymous browsing stays unlocked for learners who just want to read.</p>
+            </div>
+        </article>
+    </div>
+    <div class="col-md-6">
+        <article class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Healthy study rhythm</h2>
+                <p class="card-text mb-0">Mix map time and recall. Revisit older lessons weekly so borders and capitals stay sharp without cramming.</p>
+            </div>
+        </article>
+    </div>
+    <div class="col-md-6">
+        <article class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Always free</h2>
+                <p class="card-text mb-0">Accounts exist to track progress and power future features—never to paywall the basics.</p>
+            </div>
+        </article>
+    </div>
+</div>
+
+<div class="mt-5 d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" asp-page="/Lessons/Index">Jump into lessons</a>
+    <a class="btn btn-outline-secondary" asp-page="/Maps/Index">Use the map viewer</a>
+</div>

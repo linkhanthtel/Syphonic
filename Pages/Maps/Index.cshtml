@@ -1,0 +1,26 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Maps";
+}
+<h1 class="mb-3">Maps lab</h1>
+<p class="lead text-muted mb-4">
+    Start with a global OpenStreetMap embed, then extend this page with MapLibre, Leaflet, or custom layers as your curriculum grows.
+</p>
+
+<div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden border">
+    <iframe title="OpenStreetMap world view"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C75&amp;layer=mapnik"
+            style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen>
+    </iframe>
+</div>
+
+<div class="alert alert-light border mt-4 mb-0">
+    <div class="fw-semibold mb-2">Next experiments</div>
+    <ul class="mb-0 ps-3">
+        <li>Toggle between political, topographic, and thematic overlays.</li>
+        <li>Pin capitals and quiz learners with click-to-reveal answers.</li>
+        <li>Sync map focus with the active lesson slug or user progress.</li>
+    </ul>
+</div>

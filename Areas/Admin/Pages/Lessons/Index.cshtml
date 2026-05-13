@@ -1,0 +1,78 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Lessons administration";
+}
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-2">Lesson catalog</h1>
+        <p class="lead text-muted mb-0 small">Drafts remain hidden until you explicitly publish.</p>
+    </div>
+    <div>
+        <a class="btn btn-primary" asp-page="Create">Create lesson</a>
+    </div>
+</div>
+
+@if (TempData["Message"] is string flash)
+{
+    <div class="alert alert-success">@flash</div>
+}
+
+@if (!Model.Lessons.Any())
+{
+    <div class="alert alert-info mb-0">Create your first geography lesson.</div>
+}
+else
+{
+    <div class="table-responsive shadow-sm">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Slug</th>
+                <th scope="col">Status</th>
+                <th scope="col">Order</th>
+                <th scope="col">Updated</th>
+                <th scope="col" class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var lesson in Model.Lessons)
+            {
+                <tr class="@(!lesson.Published ? "table-warning" : null)">
+                    <td>@lesson.Title</td>
+                    <td><code>@lesson.Slug</code></td>
+                    <td>
+                        @if (lesson.Published)
+                        {
+                            <span class="badge text-bg-success">Live</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-warning text-dark">Draft</span>
+                        }
+                    </td>
+                    <td>@lesson.OrderIndex</td>
+                    <td class="small">@lesson.UpdatedAt.ToLocalTime().ToString("g")</td>
+                    <td class="text-end">
+                        <div class="d-flex gap-2 justify-content-end flex-wrap">
+                            <a class="btn btn-outline-primary btn-sm" asp-page="Edit" asp-route-id="@lesson.Id">Edit</a>
+                            <form method="post" asp-page-handler="TogglePublish">
+                                <input type="hidden" name="lessonId" value="@lesson.Id"/>
+                                <button type="submit" class="@(lesson.Published ? "btn btn-outline-warning btn-sm" : "btn btn-outline-secondary btn-sm")">
+                                    @(lesson.Published ? "Unpublish" : "Publish")
+                                </button>
+                            </form>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@lesson.Id"
+                                  class="mb-0" onsubmit="return confirm('Delete this lesson permanently? Progress rows linked to learners will cascade.');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,57 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+<div class="row align-items-center g-5 py-5">
+    <div class="col-lg-7">
+        <p class="text-uppercase text-secondary small fw-semibold mb-2">Free geography practice</p>
+        <h1 class="display-5 fw-semibold mb-3">Learn the world clearly, calmly, step by step</h1>
+        <p class="lead mb-4">
+            Syphonic is structured for explorers of every age—continents first, maps next, quizzes and mastery later—as you unlock progress on your dashboard.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mb-5">
+            <a class="btn btn-primary btn-lg" asp-page="/Lessons/Index">Start with lessons</a>
+            <a class="btn btn-outline-secondary btn-lg" asp-page="/Learn/Index">How learning works</a>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h6">Guided lessons</h2>
+                        <p class="small text-muted mb-0">Short, focused topics you can finish in a sitting—designed to grow with your library.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h6">Progress you own</h2>
+                        <p class="small text-muted mb-0">Sign in to track completion, streaks, and activity as new tools arrive.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h6">Maps built-in</h2>
+                        <p class="small text-muted mb-0">Anchor facts to places with an interactive map page you can extend.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 bg-body-secondary shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">Where to go next</h2>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><a asp-page="/Learn/Index">Learning paths &amp; study tips</a></li>
+                    <li class="mb-2"><a asp-page="/Lessons/Index">Browse published lessons</a></li>
+                    <li class="mb-2"><a asp-page="/Maps/Index">Open the map lab</a></li>
+                    <li><a asp-area="Identity" asp-page="/Account/Register">Create a free account</a> to save progress</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

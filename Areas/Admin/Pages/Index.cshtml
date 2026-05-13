@@ -1,0 +1,31 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Admin overview";
+}
+
+<h1 class="mb-3">Admin workspace</h1>
+<p class="lead text-muted mb-4">
+    Manage educator-generated lessons and supervise accounts as Syphonic grows beyond this starter scaffold.
+</p>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Lesson management</h2>
+                <p class="small text-muted">Publish drafts, reorder lessons, tune summaries, keep slugs predictable.</p>
+                <a class="btn btn-primary" asp-area="Admin" asp-page="/Lessons/Index">Manage lessons</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Community accounts</h2>
+                <p class="small text-muted">Review who participates and assign admin helpers carefully.</p>
+                <a class="btn btn-outline-primary" asp-area="Admin" asp-page="/Users/Index">View users</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+@using Microsoft.AspNetCore.Identity
+@using Syphonic.Data
+@inject SignInManager<ApplicationUser> SignInManager
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <span class="navbar-text text-secondary me-lg-3">@(User.Identity?.Name ?? "Signed in")</span>
+        </li>
+        <li class="nav-item">
+            <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Page("/Index")">
+                <button type="submit" class="nav-link btn btn-link link-light text-decoration-none p-0">Log out</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Log in</a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,63 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<h1 class="mb-3">Your geography dashboard</h1>
+<p class="lead text-muted mb-4">Track published lessons you've finished and skim recent milestones.</p>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Completion</h2>
+                <p class="display-6 mb-2">@Model.CompletedLessons / @Model.PublishedLessonCount</p>
+                <p class="small text-muted mb-0">
+                    Completed lessons versus everything currently published on Syphonic.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 text-muted">In motion</h2>
+                <p class="display-6 mb-2">@Model.InProgressCount</p>
+                <p class="small text-muted mb-0">Lessons touched but waiting for completion.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Next step</h2>
+                <p class="mb-2 fw-semibold">Keep mapping facts to regions</p>
+                <div class="d-flex flex-column gap-2">
+                    <a class="btn btn-primary btn-sm" asp-page="/Lessons/Index">Explore lessons</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Maps/Index">Open maps</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2 class="h5 mb-3">Recent activity</h2>
+    @if (!Model.RecentActivities.Any())
+    {
+        <div class="alert alert-light border">No milestones yet—finish your first lesson to populate this timeline.</div>
+    }
+    else
+    {
+        <ul class="list-group shadow-sm">
+            @foreach (var activity in Model.RecentActivities)
+            {
+                <li class="list-group-item">
+                    <div class="fw-semibold">@activity.Kind</div>
+                    <div class="text-muted small mb-2">@activity.CreatedAt.ToLocalTime().ToString("f")</div>
+                    <div>@activity.Description</div>
+                </li>
+            }
+        </ul>
+    }
+</div>

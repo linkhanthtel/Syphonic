@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+
+.idea/
+*.user
+*.suo
+*.userosscache
+
+**/syphonic.db
+**/syphonic.db-shm
+**/syphonic.db-wal
+
+.DS_Store
+
+**/logs/
+**/publish/
