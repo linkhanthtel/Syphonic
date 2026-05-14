@@ -33,20 +33,19 @@ public class CreateModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
+        string resolvedSlug;
         try
         {
-            var slug = ResolveSlug(Input);
-            Input.SlugOverride = slug;
+            resolvedSlug = ResolveSlug(Input);
+            Input.SlugOverride = resolvedSlug;
         }
         catch (ArgumentException ex)
         {
             ModelState.AddModelError(nameof(Input.SlugOverride), ex.Message);
+            return Page();
         }
 
-        if (!ModelState.IsValid)
-            return Page();
-
-        await EnsureSlugAvailableAsync(Input.SlugOverride, null, cancellationToken);
+        await EnsureSlugAvailableAsync(resolvedSlug, null, cancellationToken);
         if (!ModelState.IsValid)
             return Page();
 
@@ -54,7 +53,7 @@ public class CreateModel : PageModel
         var lesson = new Lesson
         {
             Title = Input.Title.Trim(),
-            Slug = Input.SlugOverride,
+            Slug = resolvedSlug,
             Summary = NormalizeOptional(Input.Summary),
             Content = Input.Content.Trim(),
             OrderIndex = Input.OrderIndex,
