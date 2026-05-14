@@ -3,39 +3,78 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
+
 <h1 class="mb-3">Your geography dashboard</h1>
-<p class="lead text-muted mb-4">Track published lessons you've finished and skim recent milestones.</p>
+<p class="lead text-muted mb-4">Track lesson completion at a glance, keep daily touchpoints, and pick up where you left off.</p>
 
 <div class="row g-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted">Completion</h2>
-                <p class="display-6 mb-2">@Model.CompletedLessons / @Model.PublishedLessonCount</p>
-                <p class="small text-muted mb-0">
-                    Completed lessons versus everything currently published on Syphonic.
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h2 class="h6 text-muted">In motion</h2>
-                <p class="display-6 mb-2">@Model.InProgressCount</p>
-                <p class="small text-muted mb-0">Lessons touched but waiting for completion.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h2 class="h6 text-muted">Next step</h2>
-                <p class="mb-2 fw-semibold">Keep mapping facts to regions</p>
-                <div class="d-flex flex-column gap-2">
-                    <a class="btn btn-primary btn-sm" asp-page="/Lessons/Index">Explore lessons</a>
-                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Maps/Index">Open maps</a>
+                <h2 class="h6 text-muted text-uppercase small mb-2">Publication progress</h2>
+                <div class="d-flex flex-column flex-xl-row gap-4 align-items-start">
+                    <div class="flex-grow-1">
+                        <p class="display-6 mb-1">@Model.CompletedLessons / @Model.PublishedLessonCount</p>
+                        <p class="small text-muted mb-2">Completed versus every published lesson Syphonic exposes today.</p>
+                        @{
+                            var percent = Model.PublishedLessonCount == 0 ? 0 : Model.CompletionPercent;
+                        }
+                        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@percent">
+                            <div class="progress-bar bg-success progress-bar-striped" style="width: @percent%">@percent%</div>
+                        </div>
+                        @if (Model.LastLessonCompletedAt is DateTimeOffset lastComplete)
+                        {
+                            <div class="text-muted small mt-2 mb-0">Last celebration: @lastComplete.ToLocalTime().ToString("MMMM d • h:mm tt")</div>
+                        }
+                    </div>
+                    <div class="border rounded p-3 flex-shrink-0 w-100" style="max-width:260px;">
+                        <h3 class="h6 text-muted">Rhythm helpers</h3>
+                        <ul class="list-unstyled small mb-3">
+                            <li class="d-flex justify-content-between py-1">
+                                <span class="text-muted">In-progress topics</span>
+                                <strong>@Model.InProgressCount</strong>
+                            </li>
+                            <li class="d-flex justify-content-between py-1 border-top">
+                                <span class="text-muted">Practice days last 7d</span>
+                                <strong>@Model.DistinctPracticeDaysRecent</strong>
+                            </li>
+                        </ul>
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-primary btn-sm" asp-page="/Lessons/Index">Browse lessons</a>
+                            <a class="btn btn-outline-secondary btn-sm" asp-page="/Maps/Index">Open maps lab</a>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 bg-body-secondary shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Suggested next hops</h2>
+                @if (!Model.SuggestedLessons.Any())
+                {
+                    <p class="small mb-0">Amazing—you tackled every lesson we’ve published.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var suggestion in Model.SuggestedLessons)
+                        {
+                            <li class="list-group-item px-0 bg-transparent">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="flex-grow-1">
+                                        <a class="fw-semibold text-decoration-none" asp-page="/Lessons/Detail" asp-route-slug="@suggestion.Slug">@suggestion.Title</a>
+                                        @if (!string.IsNullOrWhiteSpace(suggestion.Summary))
+                                        {
+                                            <div class="text-muted small">@suggestion.Summary</div>
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
             </div>
         </div>
     </div>
@@ -45,17 +84,20 @@
     <h2 class="h5 mb-3">Recent activity</h2>
     @if (!Model.RecentActivities.Any())
     {
-        <div class="alert alert-light border">No milestones yet—finish your first lesson to populate this timeline.</div>
+        <div class="alert alert-light border">Nothing logged yet—open a lesson to begin your trail.</div>
     }
     else
     {
         <ul class="list-group shadow-sm">
             @foreach (var activity in Model.RecentActivities)
             {
+                var label = ActivityKindFormatter.ToDisplayName(activity.Kind);
                 <li class="list-group-item">
-                    <div class="fw-semibold">@activity.Kind</div>
-                    <div class="text-muted small mb-2">@activity.CreatedAt.ToLocalTime().ToString("f")</div>
-                    <div>@activity.Description</div>
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                        <div class="fw-semibold">@label</div>
+                        <div class="text-muted small">@activity.CreatedAt.ToLocalTime().ToString("f")</div>
+                    </div>
+                    <div class="mt-1">@activity.Description</div>
                 </li>
             }
         </ul>
