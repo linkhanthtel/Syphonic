@@ -3,24 +3,60 @@
 @{
     ViewData["Title"] = "Maps";
 }
+@section Styles {
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          crossorigin="" />
+}
+
 <h1 class="mb-3">Maps lab</h1>
 <p class="lead text-muted mb-4">
-    Start with a global OpenStreetMap embed, then extend this page with MapLibre, Leaflet, or custom layers as your curriculum grows.
+    Spin up an interactive atlas powered by Leaflet + OpenStreetMap tiles. Geography lessons link naturally to whichever regional story you unlock next.
 </p>
 
-<div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden border">
-    <iframe title="OpenStreetMap world view"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C75&amp;layer=mapnik"
-            style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-            allowfullscreen>
-    </iframe>
+<div id="syphonic-map-app" class="mb-5">
+    <div class="d-flex flex-column flex-xl-row gap-3 align-items-xl-center mb-3">
+        <span class="text-muted fw-semibold text-uppercase small mb-2 mb-xl-0">Regional views</span>
+        <div class="d-flex flex-wrap gap-2" data-map-presets></div>
+    </div>
+
+    <div id="map-leaflet"
+         role="presentation"
+         class="rounded border shadow-sm mb-3"
+         style="min-height:540px;"></div>
+
+    <p class="small text-muted mb-0">
+        Tiles © OpenStreetMap contributors.
+        Prefer hosted layers for classrooms? Toggle additional map styles or GeoJSON overlays in <code class="small">maps-lab.js</code>.
+    </p>
+
+    <p class="fw-semibold text-muted mb-2 mt-3" data-map-meta>Focus: World overview</p>
 </div>
 
-<div class="alert alert-light border mt-4 mb-0">
-    <div class="fw-semibold mb-2">Next experiments</div>
-    <ul class="mb-0 ps-3">
-        <li>Toggle between political, topographic, and thematic overlays.</li>
-        <li>Pin capitals and quiz learners with click-to-reveal answers.</li>
-        <li>Sync map focus with the active lesson slug or user progress.</li>
-    </ul>
+<div class="row g-3">
+    <div class="col-md-6">
+        <article class="card border-0 bg-body-secondary h-100">
+            <div class="card-body">
+                <h2 class="h5">Teach geography in context</h2>
+                <p class="small mb-2">Embed quick challenges: capitals guessing, biome comparisons, watershed tracing.</p>
+                <p class="small text-muted mb-0">Lesson slugs sync easily with bookmarks so `/Lessons/[slug]?map=AFRICA` can become a UX affordance soon.</p>
+            </div>
+        </article>
+    </div>
+    <div class="col-md-6">
+        <article class="card border-0 bg-body-secondary h-100">
+            <div class="card-body">
+                <h2 class="h5">Developer hooks</h2>
+                <p class="small mb-3">Reuse the learner catalog programmatically:</p>
+                <a class="btn btn-sm btn-outline-primary" href="/api/lessons/published">
+                    GET /api/lessons/published
+                </a>
+            </div>
+        </article>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="~/js/maps-lab.js" asp-append-version="true"></script>
+}
