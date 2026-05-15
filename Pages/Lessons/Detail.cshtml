@@ -27,15 +27,20 @@ else
             <h1 class="mb-2">@Model.Lesson.Title</h1>
             @if (!string.IsNullOrWhiteSpace(Model.Lesson.Summary))
             {
-                <p class="lead text-muted mb-0">@Model.Lesson.Summary</p>
+                <p class="lead text-muted mb-1">@Model.Lesson.Summary</p>
             }
+            <p class="small text-muted mb-0">
+                Lesson content is written in Markdown; headings, emphasis, lists, fences, links, etc. render below.
+            </p>
         </header>
         @if (!Model.Lesson.Published && User.IsInRole("Admin"))
         {
-            <div class="alert alert-secondary">Draft (visible to admins only).</div>
+            <div class="alert alert-secondary">Draft preview (admins-only until you publish).</div>
         }
 
-        <div class="lesson-body border rounded bg-body-secondary p-4 mb-4" style="white-space: pre-wrap;">@Model.Lesson.Content</div>
+        <div class="lesson-markdown lesson-body border rounded bg-body-secondary p-4 mb-4">
+            @Html.Raw(Model.LessonHtml)
+        </div>
 
         @if (User.Identity?.IsAuthenticated == true)
         {

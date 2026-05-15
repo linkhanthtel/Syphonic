@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Syphonic.Data;
 using Syphonic.Models;
+using Syphonic.Services;
 
 namespace Syphonic.Pages.Lessons;
 
@@ -17,6 +18,8 @@ public class DetailModel : PageModel
     }
 
     public Lesson? Lesson { get; private set; }
+
+    public string LessonHtml { get; private set; } = string.Empty;
 
     public LessonProgress? Progress { get; private set; }
 
@@ -38,6 +41,8 @@ public class DetailModel : PageModel
 
         if (Lesson is null)
             return NotFound();
+
+        LessonHtml = LessonMarkdown.ToHtml(Lesson.Content);
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId is null)
@@ -116,6 +121,14 @@ public class DetailModel : PageModel
                 LessonId = lesson.Id,
                 StartedAt = DateTimeOffset.UtcNow
             });
+
+            _db.UserActivities.Add(new UserActivity
+            {
+                UserId = userId,
+                Kind = "lesson_started",
+                Description = $"Opened “{lesson.Title}”."
+            });
+
             await _db.SaveChangesAsync(cancellationToken);
             return;
         }

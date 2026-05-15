@@ -4,7 +4,7 @@
     ViewData["Title"] = "Lessons";
 }
 <h1 class="mb-3">Lesson library</h1>
-<p class="lead text-muted mb-4">Pick a lesson to read deeply. Signed-in learners can mark lessons complete.</p>
+<p class="lead text-muted mb-4">Pick a lesson to read deeply. Signed-in learners see progress chips and can mark lessons complete.</p>
 
 @if (!Model.Lessons.Any())
 {
@@ -15,7 +15,7 @@ else
     <div class="list-group shadow-sm">
         @foreach (var lesson in Model.Lessons)
         {
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-3"
                asp-page="Detail" asp-route-slug="@lesson.Slug">
                 <div class="me-3">
                     <div class="fw-semibold">@lesson.Title</div>
@@ -24,9 +24,27 @@ else
                         <div class="text-muted small mb-1">@lesson.Summary</div>
                     }
                 </div>
-                <span class="badge rounded-pill text-bg-secondary align-self-center">
-                    Lesson
-                </span>
+                <div class="d-flex flex-column align-items-end gap-1">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (lesson.IsCompleted)
+                        {
+                            <span class="badge text-bg-success">Completed</span>
+                        }
+                        else if (lesson.HasProgress)
+                        {
+                            <span class="badge text-bg-warning text-dark">In progress</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-light text-muted border">New</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Free to read</span>
+                    }
+                </div>
             </a>
         }
     </div>
