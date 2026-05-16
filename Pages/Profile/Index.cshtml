@@ -3,35 +3,64 @@
 @{
     ViewData["Title"] = "Profile";
 }
+
 <h1 class="mb-3">Profile overview</h1>
 <p class="lead text-muted mb-4">
-    Lightweight snapshot of how your account participates in geography practice.
+    Personalize how Syphonic greets you while keeping security-sensitive changes inside the Identity account tools.
 </p>
 
+@if (TempData["StatusMessage"] is string status)
+{
+    <div class="alert alert-success">@status</div>
+}
+
+@if (!ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+}
+
 <div class="row g-4">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <h2 class="h5 mb-3">Basics</h2>
+                <h2 class="h5 mb-3">Public learner details</h2>
+                <form method="post" class="needs-validation">
+                    <div class="mb-3">
+                        <label asp-for="Input.DisplayName" class="form-label"></label>
+                        <input asp-for="Input.DisplayName" class="form-control" placeholder="How should Syphonic address you?" />
+                        <span asp-validation-for="Input.DisplayName" class="text-danger small d-block"></span>
+                        <div class="form-text">Shown in future personalized surfaces; email-based login stays unchanged.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save display name</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Account snapshot</h2>
                 <dl class="row mb-0">
                     <dt class="col-sm-4 text-muted small text-uppercase">Email</dt>
                     <dd class="col-sm-8">@Model.Email</dd>
-                    <dt class="col-sm-4 text-muted small text-uppercase">Display name</dt>
-                    <dd class="col-sm-8">@(Model.DisplayName ?? "—")</dd>
                     <dt class="col-sm-4 text-muted small text-uppercase">Member since</dt>
                     <dd class="col-sm-8">@Model.CreatedAt.ToLocalTime().ToString("D")</dd>
                 </dl>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 bg-body-secondary shadow-sm">
             <div class="card-body">
-                <h2 class="h6 text-muted">Account tools</h2>
-                <p class="small text-muted">Use the built-in Identity management pages to change password, email, or sign-in methods.</p>
-                <a class="btn btn-outline-primary w-100 mb-2" asp-area="Identity" asp-page="/Account/Manage/Index">Manage account</a>
-                <a class="btn btn-outline-secondary w-100" asp-page="/Dashboard/Index">Back to dashboard</a>
+                <h2 class="h6 text-muted">Security &amp; identity</h2>
+                <p class="small text-muted">Passwords, email addresses, and external logins are managed by ASP.NET Identity.</p>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary" asp-area="Identity" asp-page="/Account/Manage/Index">Open account settings</a>
+                    <a class="btn btn-outline-secondary" asp-page="/Dashboard/Index">Return to dashboard</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="~/Pages/Shared/_ValidationScriptsPartial.cshtml" />
+}

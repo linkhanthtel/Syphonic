@@ -1,0 +1,50 @@
+@page
+@model PrivacyModel
+@{
+    ViewData["Title"] = "Privacy";
+}
+
+<h1 class="mb-3">Privacy</h1>
+<p class="lead text-muted mb-4">
+    Syphonic is built for learners. This page is a concise statement you can evolve with legal counsel as you grow beyond a personal/educational project.
+</p>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <section class="mb-5">
+            <h2 class="h5">What we collect today</h2>
+            <p>
+                Signing in relies on ASP.NET Identity. Typical data includes email, password hashes, security stamps,
+                lesson progress you generate by reading and completing lessons, and activity records that power your dashboard.
+                When you browse without an account we do not persist personal identifiers beyond normal web server logs
+                operated by whoever hosts your app.
+            </p>
+        </section>
+        <section class="mb-5">
+            <h2 class="h5">How we use information</h2>
+            <p class="mb-0">
+                Account data saves your progress across sessions. Administrators can inspect accounts and unpublished lessons
+                to curate geography content responsibly. Geography maps on the Maps lab may embed third-party imagery;
+                consult their respective privacy policies before enabling classroom use.
+            </p>
+        </section>
+        <section>
+            <h2 class="h5">Transparency &amp; control</h2>
+            <p class="mb-0">
+                Learners manage credentials through the built-in “Manage account” page. Administrators should document any
+                additional analytics or email providers before enabling them inside this codebase.
+            </p>
+        </section>
+    </div>
+    <aside class="col-lg-4">
+        <div class="card border-0 bg-body-secondary shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Operational reminder</h2>
+                <p class="small text-muted mb-0">
+                    Update this page when you integrate payments, telemetry, COPPA-compliant youth programs, marketing email,
+                    or region-specific mandates.
+                </p>
+            </div>
+        </div>
+    </aside>
+</div>
