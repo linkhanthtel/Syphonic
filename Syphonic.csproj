@@ -7,6 +7,7 @@
     <AssemblyName>Syphonic</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.43.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />

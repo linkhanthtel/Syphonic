@@ -12,8 +12,71 @@ footer.footer {
     margin-top: auto;
 }
 
-.lesson-body {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+.lesson-markdown.lesson-body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.65;
+}
+
+.lesson-markdown h1 {
+    font-size: 2rem;
+    margin-bottom: .75rem;
+}
+
+.lesson-markdown h2 {
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: .6rem;
+}
+
+.lesson-markdown h3 {
+    font-size: 1.25rem;
+    margin-top: 1.35rem;
+    margin-bottom: .5rem;
+}
+
+.lesson-markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.lesson-markdown ul {
+    padding-left: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.lesson-markdown img,
+.lesson-markdown video {
+    max-width: 100%;
+    border-radius: .35rem;
+}
+
+.lesson-markdown pre {
+    background-color: rgba(15, 23, 42, 0.05);
+    border-radius: .4rem;
+    padding: .85rem;
+    overflow-x: auto;
+}
+
+.lesson-markdown code {
+    color: inherit;
+}
+
+.lesson-markdown blockquote {
+    border-left: 4px solid var(--bs-border-color-translucent, #dcdcdc);
+    margin: 1rem 0;
+    padding-left: 1rem;
+    color: var(--bs-secondary-color, #495057);
+}
+
+.lesson-markdown table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.lesson-markdown table td,
+.lesson-markdown table th {
+    border: 1px solid rgba(148, 163, 184, .45);
+    padding: .55rem .65rem;
+    vertical-align: top;
 }
 
 .navbar-brand {
