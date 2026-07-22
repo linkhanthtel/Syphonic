@@ -66,34 +66,43 @@ public class IndexModel : PageModel
                 p => p.UserId == userId && p.CompletedAt == null && p.StartedAt != null,
                 cancellationToken);
 
+        // SQLite cannot translate DateTimeOffset range filters; filter in memory after fetch.
         var weekAgo = DateTimeOffset.UtcNow.AddDays(-7);
-        var recentStamps = await _db.UserActivities.AsNoTracking()
-            .Where(a => a.UserId == userId && a.CreatedAt >= weekAgo)
+        var activityTimestamps = await _db.UserActivities.AsNoTracking()
+            .Where(a => a.UserId == userId)
             .Select(a => a.CreatedAt)
             .ToListAsync(cancellationToken);
 
-        DistinctPracticeDaysRecent = recentStamps
+        DistinctPracticeDaysRecent = activityTimestamps
+            .Where(ts => ts >= weekAgo)
             .Select(ts => ts.UtcDateTime.Date)
             .Distinct()
             .Count();
 
-        LastLessonCompletedAt = await _db.LessonProgress.AsNoTracking()
+        // SQLite cannot ORDER BY DateTimeOffset; sort in memory after fetch.
+        var completionTimestamps = await _db.LessonProgress.AsNoTracking()
             .Join(
                 _db.Lessons.Where(l => l.Published),
                 progress => progress.LessonId,
                 lesson => lesson.Id,
                 (progress, _) => progress)
             .Where(p => p.UserId == userId && p.CompletedAt != null)
-            .OrderByDescending(p => p.CompletedAt)
             .Select(p => p.CompletedAt)
-            .FirstOrDefaultAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
 
-        RecentActivities = await _db.UserActivities.AsNoTracking()
+        LastLessonCompletedAt = completionTimestamps
+            .OrderByDescending(ts => ts)
+            .FirstOrDefault();
+
+        var activities = await _db.UserActivities.AsNoTracking()
             .Where(a => a.UserId == userId)
-            .OrderByDescending(a => a.CreatedAt)
-            .Take(12)
             .Select(a => new ActivityVm(a.Kind, a.Description, a.CreatedAt))
             .ToListAsync(cancellationToken);
+
+        RecentActivities = activities
+            .OrderByDescending(a => a.CreatedAt)
+            .Take(12)
+            .ToList();
 
         var finishedLessonIds = await _db.LessonProgress.AsNoTracking()
             .Join(
