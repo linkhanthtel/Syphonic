@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Syphonic.Data;
@@ -16,12 +17,22 @@ public class IndexModel : PageModel
 
     public IReadOnlyList<LessonListItem> Lessons { get; private set; } = Array.Empty<LessonListItem>();
 
+    /// <summary>
+    /// Search text from the query string (/Lessons?q=ocean). SupportsGet lets a GET
+    /// request fill this property; by default [BindProperty] only binds on POST.
+    /// </summary>
+    [BindProperty(SupportsGet = true, Name = "q")]
+    public string? Query { get; set; }
+
+    public bool IsSearching => !string.IsNullOrWhiteSpace(Query);
+
     public sealed record LessonListItem(
         int Id,
         string Title,
         string Slug,
         string? Summary,
         int OrderIndex,
+        int QuestionCount,
         bool HasProgress,
         bool IsCompleted);
 
@@ -31,9 +42,20 @@ public class IndexModel : PageModel
         if (!User.IsInRole("Admin"))
             query = query.Where(l => l.Published);
 
+        if (IsSearching)
+        {
+            Query = Query!.Trim();
+            var pattern = $"%{EscapeLike(Query)}%";
+            // LIKE is case-insensitive for English letters in SQLite.
+            query = query.Where(l =>
+                EF.Functions.Like(l.Title, pattern, "\\") ||
+                EF.Functions.Like(l.Summary!, pattern, "\\") ||
+                EF.Functions.Like(l.Content, pattern, "\\"));
+        }
+
         var projected = await query
             .OrderBy(l => l.OrderIndex).ThenBy(l => l.Title)
-            .Select(l => new { l.Id, l.Title, l.Slug, l.Summary, l.OrderIndex })
+            .Select(l => new { l.Id, l.Title, l.Slug, l.Summary, l.OrderIndex, QuestionCount = l.Questions.Count })
             .ToListAsync(cancellationToken);
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -59,8 +81,13 @@ public class IndexModel : PageModel
                 entry.Slug,
                 entry.Summary,
                 entry.OrderIndex,
+                entry.QuestionCount,
                 snapshot.HasProgress,
                 snapshot.IsCompleted);
         });
     }
+
+    /// <summary>Stops user input like "100%" from acting as a LIKE wildcard.</summary>
+    private static string EscapeLike(string value)
+        => value.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
 }

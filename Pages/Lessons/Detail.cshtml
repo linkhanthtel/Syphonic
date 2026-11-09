@@ -42,6 +42,27 @@ else
             @Html.Raw(Model.LessonHtml)
         </div>
 
+        @if (Model.QuestionCount > 0)
+        {
+            <div class="card border-primary-subtle shadow-sm mb-4">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <h2 class="h5 mb-1">Check your understanding</h2>
+                        <p class="text-muted small mb-0">
+                            @Model.QuestionCount quick question@(Model.QuestionCount == 1 ? "" : "s") on this lesson.
+                            @if (Model.BestQuizPercent is int best)
+                            {
+                                <span>Your best score so far: <strong class="text-body">@best%</strong>.</span>
+                            }
+                        </p>
+                    </div>
+                    <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">
+                        @(Model.BestQuizPercent is null ? "Take the quiz" : "Retake the quiz")
+                    </a>
+                </div>
+            </div>
+        }
+
         @if (User.Identity?.IsAuthenticated == true)
         {
             <section class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center">
@@ -72,6 +93,30 @@ else
                 <a asp-area="Identity" asp-page="/Account/Login">log in</a>
                 to track completion.
             </p>
+        }
+
+        @if (Model.PreviousLesson is not null || Model.NextLesson is not null)
+        {
+            <nav class="d-flex justify-content-between gap-3 border-top pt-4 mt-4" aria-label="Lesson navigation">
+                <div>
+                    @if (Model.PreviousLesson is { } prev)
+                    {
+                        <a class="text-decoration-none" asp-page="Detail" asp-route-slug="@prev.Slug">
+                            <div class="small text-muted">&larr; Previous</div>
+                            <div class="fw-semibold">@prev.Title</div>
+                        </a>
+                    }
+                </div>
+                <div class="text-end">
+                    @if (Model.NextLesson is { } next)
+                    {
+                        <a class="text-decoration-none" asp-page="Detail" asp-route-slug="@next.Slug">
+                            <div class="small text-muted">Next &rarr;</div>
+                            <div class="fw-semibold">@next.Title</div>
+                        </a>
+                    }
+                </div>
+            </nav>
         }
     </article>
 }

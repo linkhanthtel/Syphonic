@@ -56,6 +56,7 @@
     <div class="d-flex flex-wrap gap-2 mb-5">
         <button type="submit" class="btn btn-primary">Save changes</button>
         <a class="btn btn-outline-secondary" asp-page="/Lessons/Index">Back to catalog</a>
+        <a class="btn btn-outline-info" asp-page="Questions" asp-route-lessonId="@Model.Input.Id">Manage quiz</a>
         <a class="btn btn-link" asp-area="" asp-page="/Lessons/Detail" asp-route-slug="@Model.Input.Slug">
             Preview learner view
         </a>

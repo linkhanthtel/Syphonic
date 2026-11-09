@@ -17,6 +17,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<UserActivity> UserActivities => Set<UserActivity>();
 
+    public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
+
+    public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -47,6 +51,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             entity.Property(e => e.Kind).HasMaxLength(64);
             entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<QuizQuestion>(entity =>
+        {
+            entity.Property(e => e.Prompt).HasMaxLength(1000);
+            entity.Property(e => e.OptionA).HasMaxLength(300);
+            entity.Property(e => e.OptionB).HasMaxLength(300);
+            entity.Property(e => e.OptionC).HasMaxLength(300);
+            entity.Property(e => e.OptionD).HasMaxLength(300);
+            entity.Property(e => e.Explanation).HasMaxLength(2000);
+            entity.HasIndex(e => new { e.LessonId, e.OrderIndex });
+            entity.HasOne(e => e.Lesson)
+                .WithMany(l => l.Questions)
+                .HasForeignKey(e => e.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<QuizAttempt>(entity =>
+        {
+            entity.HasIndex(e => new { e.UserId, e.LessonId });
+            entity.Ignore(e => e.Percent);
+            entity.HasOne(e => e.Lesson)
+                .WithMany()
+                .HasForeignKey(e => e.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.User)
                 .WithMany()
                 .HasForeignKey(e => e.UserId)

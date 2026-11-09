@@ -28,6 +28,11 @@ public class IndexModel : PageModel
 
     public DateTimeOffset? LastLessonCompletedAt { get; private set; }
 
+    public int QuizzesTaken { get; private set; }
+
+    /// <summary>Average of the learner's best score on each quiz they have taken, or null if none.</summary>
+    public int? AverageBestQuizPercent { get; private set; }
+
     public IReadOnlyList<ActivityVm> RecentActivities { get; private set; } = Array.Empty<ActivityVm>();
 
     public IReadOnlyList<SuggestedLessonVm> SuggestedLessons { get; private set; } = Array.Empty<SuggestedLessonVm>();
@@ -93,6 +98,20 @@ public class IndexModel : PageModel
         LastLessonCompletedAt = completionTimestamps
             .OrderByDescending(ts => ts)
             .FirstOrDefault();
+
+        var attempts = await _db.QuizAttempts.AsNoTracking()
+            .Where(a => a.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        var bestPerLesson = attempts
+            .GroupBy(a => a.LessonId)
+            .Select(g => g.Max(a => a.Percent))
+            .ToList();
+
+        QuizzesTaken = bestPerLesson.Count;
+        AverageBestQuizPercent = bestPerLesson.Count == 0
+            ? null
+            : (int)Math.Round(bestPerLesson.Average(), MidpointRounding.AwayFromZero);
 
         var activities = await _db.UserActivities.AsNoTracking()
             .Where(a => a.UserId == userId)

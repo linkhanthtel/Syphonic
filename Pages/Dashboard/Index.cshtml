@@ -38,6 +38,14 @@
                                 <span class="text-muted">Practice days last 7d</span>
                                 <strong>@Model.DistinctPracticeDaysRecent</strong>
                             </li>
+                            <li class="d-flex justify-content-between py-1 border-top">
+                                <span class="text-muted">Quizzes taken</span>
+                                <strong>@Model.QuizzesTaken</strong>
+                            </li>
+                            <li class="d-flex justify-content-between py-1 border-top">
+                                <span class="text-muted">Avg best quiz score</span>
+                                <strong>@(Model.AverageBestQuizPercent is int avg ? $"{avg}%" : "–")</strong>
+                            </li>
                         </ul>
                         <div class="d-grid gap-2">
                             <a class="btn btn-primary btn-sm" asp-page="/Lessons/Index">Browse lessons</a>

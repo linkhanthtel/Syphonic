@@ -1,0 +1,91 @@
+@page "{lessonId:int}/{id:int?}"
+@model QuestionFormModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Add quiz question" : "Edit quiz question";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="Index">Lesson catalog</a></li>
+        <li class="breadcrumb-item"><a asp-page="Questions" asp-route-lessonId="@Model.Lesson.Id">@Model.Lesson.Title quiz</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@(Model.IsNew ? "New question" : "Edit question")</li>
+    </ol>
+</nav>
+
+<h1 class="mb-3">@(Model.IsNew ? "Add quiz question" : "Edit quiz question")</h1>
+
+@if (!ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="alert alert-danger mb-4" role="alert"></div>
+}
+
+@* With no action attribute, the form posts back to the current URL (same lessonId and id). *@
+<form method="post">
+    <input type="hidden" asp-for="Input.Id" />
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Input.Prompt" class="form-label"></label>
+                <textarea asp-for="Input.Prompt" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Input.Prompt" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Input.OptionA" class="form-label"></label>
+                    <input asp-for="Input.OptionA" class="form-control" />
+                    <span asp-validation-for="Input.OptionA" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.OptionB" class="form-label"></label>
+                    <input asp-for="Input.OptionB" class="form-control" />
+                    <span asp-validation-for="Input.OptionB" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.OptionC" class="form-label"></label>
+                    <input asp-for="Input.OptionC" class="form-control" />
+                    <span asp-validation-for="Input.OptionC" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.OptionD" class="form-label"></label>
+                    <input asp-for="Input.OptionD" class="form-control" />
+                    <span asp-validation-for="Input.OptionD" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label asp-for="Input.CorrectOption" class="form-label"></label>
+                    <select asp-for="Input.CorrectOption" class="form-select">
+                        @for (var i = 0; i < Syphonic.Models.QuizQuestion.MaxOptions; i++)
+                        {
+                            <option value="@i">Option @Syphonic.Models.QuizQuestion.LetterFor(i)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.CorrectOption" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Input.OrderIndex" class="form-label"></label>
+                    <input asp-for="Input.OrderIndex" class="form-control" />
+                    <span asp-validation-for="Input.OrderIndex" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-0">
+                <label asp-for="Input.Explanation" class="form-label"></label>
+                <textarea asp-for="Input.Explanation" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Input.Explanation" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-5">
+        <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Add question" : "Save changes")</button>
+        <a class="btn btn-outline-secondary" asp-page="Questions" asp-route-lessonId="@Model.Lesson.Id">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="~/Pages/Shared/_ValidationScriptsPartial.cshtml" />
+}

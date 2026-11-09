@@ -82,3 +82,13 @@ footer.footer {
 .navbar-brand {
     letter-spacing: 0.03em;
 }
+
+/* Quiz results: highlight the right answer and a wrong pick */
+.quiz-option-correct {
+    background-color: var(--bs-success-bg-subtle, #d1e7dd);
+}
+
+.quiz-option-wrong {
+    background-color: var(--bs-danger-bg-subtle, #f8d7da);
+    text-decoration: line-through;
+}

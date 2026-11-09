@@ -21,4 +21,6 @@ public class Lesson
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public ICollection<LessonProgress> Progress { get; set; } = new List<LessonProgress>();
+
+    public ICollection<QuizQuestion> Questions { get; set; } = new List<QuizQuestion>();
 }

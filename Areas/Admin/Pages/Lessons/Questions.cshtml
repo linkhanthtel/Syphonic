@@ -1,0 +1,74 @@
+@page "{lessonId:int}"
+@model QuestionsModel
+@{
+    ViewData["Title"] = $"Quiz · {Model.Lesson.Title}";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="Index">Lesson catalog</a></li>
+        <li class="breadcrumb-item"><a asp-page="Edit" asp-route-id="@Model.Lesson.Id">@Model.Lesson.Title</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Quiz</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-2">Quiz questions</h1>
+        <p class="text-muted small mb-0">
+            @Model.Questions.Count question@(Model.Questions.Count == 1 ? "" : "s") ·
+            @Model.AttemptCount learner attempt@(Model.AttemptCount == 1 ? "" : "s") so far.
+            Learners see questions in order-index order.
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="QuestionForm" asp-route-lessonId="@Model.Lesson.Id">Add question</a>
+        <a class="btn btn-outline-secondary" asp-area="" asp-page="/Lessons/Quiz" asp-route-slug="@Model.Lesson.Slug">Preview quiz</a>
+    </div>
+</div>
+
+@if (TempData["Message"] is string flash)
+{
+    <div class="alert alert-success">@flash</div>
+}
+
+@if (!Model.Questions.Any())
+{
+    <div class="alert alert-info mb-0">No questions yet. Add one so learners can check their understanding.</div>
+}
+else
+{
+    <div class="d-grid gap-3">
+        @foreach (var question in Model.Questions)
+        {
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                        <div>
+                            <div class="small text-muted mb-1">Order @question.OrderIndex</div>
+                            <h2 class="h6">@question.Prompt</h2>
+                        </div>
+                        <div class="d-flex gap-2 align-items-start">
+                            <a class="btn btn-outline-primary btn-sm" asp-page="QuestionForm"
+                               asp-route-lessonId="@Model.Lesson.Id" asp-route-id="@question.Id">Edit</a>
+                            <form method="post" asp-page-handler="Delete" asp-route-lessonId="@Model.Lesson.Id"
+                                  onsubmit="return confirm('Delete this question?');">
+                                <input type="hidden" name="questionId" value="@question.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                    <ul class="list-unstyled small mb-0">
+                        @foreach (var option in question.GetOptions())
+                        {
+                            <li class="@(option.Index == question.CorrectOption ? "fw-semibold text-success" : null)">
+                                @option.Letter. @option.Text
+                                @if (option.Index == question.CorrectOption) { <span>✓</span> }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+}

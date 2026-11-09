@@ -58,6 +58,7 @@ else
                     <td class="text-end">
                         <div class="d-flex gap-2 justify-content-end flex-wrap">
                             <a class="btn btn-outline-primary btn-sm" asp-page="Edit" asp-route-id="@lesson.Id">Edit</a>
+                            <a class="btn btn-outline-info btn-sm" asp-page="Questions" asp-route-lessonId="@lesson.Id">Quiz (@lesson.QuestionCount)</a>
                             <form method="post" asp-page-handler="TogglePublish">
                                 <input type="hidden" name="lessonId" value="@lesson.Id"/>
                                 <button type="submit" class="@(lesson.Published ? "btn btn-outline-warning btn-sm" : "btn btn-outline-secondary btn-sm")">

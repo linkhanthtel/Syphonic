@@ -1,0 +1,126 @@
+@page "/Lessons/{slug}/Quiz"
+@model QuizModel
+@using Syphonic.Services
+@{
+    ViewData["Title"] = $"{Model.Lesson.Title} quiz";
+    var result = Model.Result;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="Index">Lessons</a></li>
+        <li class="breadcrumb-item"><a asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">@Model.Lesson.Title</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Quiz</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
+    <div>
+        <h1 class="mb-1">Quiz: @Model.Lesson.Title</h1>
+        <p class="text-muted mb-0">
+            @Model.Questions.Count question@(Model.Questions.Count == 1 ? "" : "s") · score @QuizResult.PassPercent% or more to pass.
+        </p>
+    </div>
+    @if (Model.BestPercent is int best)
+    {
+        <div class="text-md-end small text-muted">
+            Your best: <strong class="text-body">@best%</strong> · @Model.AttemptCount attempt@(Model.AttemptCount == 1 ? "" : "s")
+        </div>
+    }
+</div>
+
+@if (Model.Questions.Count == 0)
+{
+    <div class="alert alert-info">This lesson doesn't have a quiz yet.</div>
+    <a class="btn btn-outline-secondary" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
+}
+else if (result is not null)
+{
+    @* ---------- Results view (after submitting) ---------- *@
+    <div class="alert @(result.Passed ? "alert-success" : "alert-warning") d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <div class="fs-4 fw-semibold">You scored @result.Score / @result.Total (@result.Percent%)</div>
+            <div>@(result.Passed ? "Great job, you passed!" : "Not quite there yet. Review the lesson and try again.")</div>
+        </div>
+        @if (User.Identity?.IsAuthenticated != true)
+        {
+            <div class="small">
+                <a asp-area="Identity" asp-page="/Account/Login">Log in</a> to save your scores.
+            </div>
+        }
+    </div>
+
+    <ol class="list-unstyled d-grid gap-3 mb-4">
+        @foreach (var item in result.Items)
+        {
+            var correctLetter = Syphonic.Models.QuizQuestion.LetterFor(item.Question.CorrectOption);
+            <li class="card shadow-sm border-start border-4 @(item.IsCorrect ? "border-success" : "border-danger")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between gap-2">
+                        <h2 class="h6 mb-3">@item.Question.Prompt</h2>
+                        <span class="badge align-self-start @(item.IsCorrect ? "text-bg-success" : "text-bg-danger")">
+                            @(item.IsCorrect ? "Correct" : "Incorrect")
+                        </span>
+                    </div>
+                    <ul class="list-unstyled mb-2">
+                        @foreach (var option in item.Question.GetOptions())
+                        {
+                            var isRight = option.Index == item.Question.CorrectOption;
+                            var isChosen = option.Index == item.ChosenOption;
+                            <li class="quiz-option py-1 px-2 rounded @(isRight ? "quiz-option-correct" : isChosen ? "quiz-option-wrong" : null)">
+                                <strong>@option.Letter.</strong> @option.Text
+                                @if (isChosen) { <span class="small text-muted">(your answer)</span> }
+                            </li>
+                        }
+                    </ul>
+                    @if (!item.IsCorrect)
+                    {
+                        <div class="small">Correct answer: <strong>@correctLetter</strong></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.Question.Explanation))
+                    {
+                        <div class="small text-muted mt-1">@item.Question.Explanation</div>
+                    }
+                </div>
+            </li>
+        }
+    </ol>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">Try again</a>
+        <a class="btn btn-outline-secondary" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
+        <a class="btn btn-link" asp-page="Index">All lessons</a>
+    </div>
+}
+else
+{
+    @* ---------- Question form (before submitting) ---------- *@
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <form method="post">
+        <ol class="list-unstyled d-grid gap-3 mb-4">
+            @{ var number = 0; }
+            @foreach (var question in Model.Questions)
+            {
+                number++;
+                <li class="card shadow-sm">
+                    <fieldset class="card-body">
+                        <legend class="h6 mb-3">@number. @question.Prompt</legend>
+                        @foreach (var option in question.GetOptions())
+                        {
+                            var inputId = $"q{question.Id}_{option.Index}";
+                            var isChecked = Model.Answers.TryGetValue(question.Id, out var picked) && picked == option.Index;
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="@inputId"
+                                       name="Answers[@question.Id]" value="@option.Index" checked="@isChecked" />
+                                <label class="form-check-label" for="@inputId">@option.Letter. @option.Text</label>
+                            </div>
+                        }
+                    </fieldset>
+                </li>
+            }
+        </ol>
+        <button type="submit" class="btn btn-primary btn-lg">Submit answers</button>
+        <a class="btn btn-link" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
+    </form>
+}

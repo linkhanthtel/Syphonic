@@ -17,14 +17,14 @@ public class IndexModel : PageModel
 
     public IReadOnlyList<LessonRow> Lessons { get; private set; } = Array.Empty<LessonRow>();
 
-    public sealed record LessonRow(int Id, string Title, string Slug, bool Published, int OrderIndex, DateTimeOffset UpdatedAt);
+    public sealed record LessonRow(int Id, string Title, string Slug, bool Published, int OrderIndex, DateTimeOffset UpdatedAt, int QuestionCount);
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
         => Lessons = await _db.Lessons
             .AsNoTracking()
             .OrderBy(l => l.OrderIndex)
             .ThenBy(l => l.Title)
-            .Select(l => new LessonRow(l.Id, l.Title, l.Slug, l.Published, l.OrderIndex, l.UpdatedAt))
+            .Select(l => new LessonRow(l.Id, l.Title, l.Slug, l.Published, l.OrderIndex, l.UpdatedAt, l.Questions.Count))
             .ToListAsync(cancellationToken);
 
     public async Task<IActionResult> OnPostTogglePublishAsync(int lessonId, CancellationToken cancellationToken)

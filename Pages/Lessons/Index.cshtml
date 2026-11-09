@@ -6,9 +6,30 @@
 <h1 class="mb-3">Lesson library</h1>
 <p class="lead text-muted mb-4">Pick a lesson to read deeply. Signed-in learners see progress chips and can mark lessons complete.</p>
 
+<form method="get" class="mb-4" role="search">
+    <div class="input-group">
+        <input type="search" name="q" value="@Model.Query" class="form-control"
+               placeholder="Search lessons, e.g. ocean, capitals, borders" aria-label="Search lessons" />
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+        @if (Model.IsSearching)
+        {
+            <a class="btn btn-outline-secondary" asp-page="Index">Clear</a>
+        }
+    </div>
+</form>
+
+@if (Model.IsSearching)
+{
+    <p class="small text-muted">
+        @Model.Lessons.Count result@(Model.Lessons.Count == 1 ? "" : "s") for “@Model.Query”
+    </p>
+}
+
 @if (!Model.Lessons.Any())
 {
-    <div class="alert alert-info mb-0">No lessons published yet.</div>
+    <div class="alert alert-info mb-0">
+        @(Model.IsSearching ? "No lessons match your search. Try a different word." : "No lessons published yet.")
+    </div>
 }
 else
 {
@@ -43,6 +64,10 @@ else
                     else
                     {
                         <span class="badge text-bg-secondary">Free to read</span>
+                    }
+                    @if (lesson.QuestionCount > 0)
+                    {
+                        <span class="badge text-bg-info">Quiz · @lesson.QuestionCount</span>
                     }
                 </div>
             </a>
