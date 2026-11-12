@@ -3,55 +3,277 @@
 @{
     ViewData["Title"] = "Home";
 }
-<div class="row align-items-center g-5 py-5">
-    <div class="col-lg-7">
-        <p class="text-uppercase text-secondary small fw-semibold mb-2">Free geography practice</p>
-        <h1 class="display-5 fw-semibold mb-3">Learn the world clearly, calmly, step by step</h1>
-        <p class="lead mb-4">
-            Syphonic is structured for explorers of every age—continents first, maps next, quizzes and mastery later—as you unlock progress on your dashboard.
-        </p>
-        <div class="d-flex flex-wrap gap-2 mb-5">
-            <a class="btn btn-primary btn-lg" asp-page="/Lessons/Index">Start with lessons</a>
-            <a class="btn btn-outline-secondary btn-lg" asp-page="/Learn/Index">How learning works</a>
+
+@* ---------- Hero: personal for learners, an invitation for guests ---------- *@
+<section class="sy-hero rounded-4 p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            @if (Model.IsSignedIn)
+            {
+                <p class="text-uppercase small fw-semibold sy-hero-kicker mb-2">Welcome back</p>
+                <h1 class="display-6 fw-semibold mb-3">
+                    @(string.IsNullOrWhiteSpace(Model.Greeting) ? "Ready for today's geography?" : $"Ready for today's geography, {Model.Greeting}?")
+                </h1>
+                @if (Model.ContinueLesson is { } next)
+                {
+                    <p class="lead mb-4">
+                        @(next.State == IndexModel.LessonState.InProgress ? "Pick up where you left off:" : "Up next for you:")
+                        <strong>@next.Title</strong>
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary btn-lg" asp-page="/Lessons/Detail" asp-route-slug="@next.Slug">
+                            @(next.State == IndexModel.LessonState.InProgress ? "Continue lesson" : "Start lesson")
+                        </a>
+                        <a class="btn btn-outline-light btn-lg" asp-page="/Practice/Index">Quick practice round</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="lead mb-4">You have finished every published lesson. Keep your memory sharp with a mixed practice round.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary btn-lg" asp-page="/Practice/Index">Start a practice round</a>
+                        <a class="btn btn-outline-light btn-lg" asp-page="/Lessons/Index">Review lessons</a>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-uppercase small fw-semibold sy-hero-kicker mb-2">Free geography practice</p>
+                <h1 class="display-5 fw-semibold mb-3">Learn the world clearly, calmly, step by step</h1>
+                <p class="lead mb-4">
+                    Short lessons, quizzes that grade instantly, an interactive atlas, and a dashboard that shows how far you have come.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary btn-lg" asp-page="/Lessons/Index">Start with lessons</a>
+                    <a class="btn btn-outline-light btn-lg" asp-area="Identity" asp-page="/Account/Register">Create a free account</a>
+                </div>
+            }
         </div>
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h2 class="h6">Guided lessons</h2>
-                        <p class="small text-muted mb-0">Short, focused topics you can finish in a sitting—designed to grow with your library.</p>
+        <div class="col-lg-5">
+            @if (Model.IsSignedIn && Model.Achievements is { } ach)
+            {
+                <div class="sy-hero-panel rounded-3 p-3 p-lg-4">
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <span class="fw-semibold">Course progress</span>
+                        <span class="small">@Model.CompletedLessonCount of @Model.PublishedLessonCount lessons</span>
+                    </div>
+                    <div class="progress mb-3" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Model.CompletionPercent" style="height: .6rem">
+                        <div class="progress-bar" style="width: @Model.CompletionPercent%"></div>
+                    </div>
+                    <div class="row text-center g-2">
+                        <div class="col-4">
+                            <div class="fs-4 fw-semibold">🔥 @ach.CurrentStreak</div>
+                            <div class="small">day streak</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fs-4 fw-semibold">🏅 @ach.EarnedCount/@ach.Badges.Count</div>
+                            <div class="small">badges</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fs-4 fw-semibold">@(Model.MyRank is { } me ? $"#{me.Rank}" : "–")</div>
+                            <div class="small">leaderboard</div>
+                        </div>
+                    </div>
+                    <a class="btn btn-light btn-sm w-100 mt-3" asp-page="/Dashboard/Index">Open my dashboard</a>
+                </div>
+            }
+            else
+            {
+                <div class="sy-hero-panel rounded-3 p-3 p-lg-4">
+                    <div class="row text-center g-2">
+                        <div class="col-4">
+                            <div class="fs-2 fw-semibold">@Model.PublishedLessonCount</div>
+                            <div class="small">lessons</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fs-2 fw-semibold">@Model.QuizQuestionCount</div>
+                            <div class="small">quiz questions</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fs-2 fw-semibold">@Model.LearnerCount</div>
+                            <div class="small">learners</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h2 class="h6">Progress you own</h2>
-                        <p class="small text-muted mb-0">Sign in to track completion, streaks, and activity as new tools arrive.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h2 class="h6">Maps built-in</h2>
-                        <p class="small text-muted mb-0">Anchor facts to places with an interactive map page you can extend.</p>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </div>
-    <div class="col-lg-5">
-        <div class="card border-0 bg-body-secondary shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="h5 mb-3">Where to go next</h2>
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><a asp-page="/Learn/Index">Learning paths &amp; study tips</a></li>
-                    <li class="mb-2"><a asp-page="/Lessons/Index">Browse published lessons</a></li>
-                    <li class="mb-2"><a asp-page="/Maps/Index">Open the map lab</a></li>
-                    <li><a asp-area="Identity" asp-page="/Account/Register">Create a free account</a> to save progress</li>
-                </ul>
-            </div>
+</section>
+
+@* ---------- Everything you can do, one tile each ---------- *@
+<section class="mb-5" aria-labelledby="explore-heading">
+    <h2 id="explore-heading" class="h4 mb-3">Explore Syphonic</h2>
+    <div class="row g-3">
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Lessons/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">📖</div>
+                    <h3 class="h6 mb-1">Lessons</h3>
+                    <p class="small text-muted mb-0">@Model.PublishedLessonCount guided topics, read in one sitting.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Practice/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">🎯</div>
+                    <h3 class="h6 mb-1">Practice</h3>
+                    <p class="small text-muted mb-0">Mixed questions drawn from every lesson.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Maps/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">🗺️</div>
+                    <h3 class="h6 mb-1">Map lab</h3>
+                    <p class="small text-muted mb-0">An interactive atlas with continent presets.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Leaderboard/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">🏆</div>
+                    <h3 class="h6 mb-1">Leaderboard</h3>
+                    <p class="small text-muted mb-0">See who is leading and where you stand.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Dashboard/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">📊</div>
+                    <h3 class="h6 mb-1">Dashboard</h3>
+                    <p class="small text-muted mb-0">Charts of your activity, scores and progress.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Achievements/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">🏅</div>
+                    <h3 class="h6 mb-1">Achievements</h3>
+                    <p class="small text-muted mb-0">Streaks and badges earned by practising.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Bookmarks/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">⭐</div>
+                    <h3 class="h6 mb-1">Saved lessons</h3>
+                    <p class="small text-muted mb-0">Your reading list for later.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card sy-tile h-100 text-decoration-none" asp-page="/Learn/Index">
+                <div class="card-body">
+                    <div class="sy-tile-icon" aria-hidden="true">🧭</div>
+                    <h3 class="h6 mb-1">How we teach</h3>
+                    <p class="small text-muted mb-0">The method and study tips behind the lessons.</p>
+                </div>
+            </a>
         </div>
     </div>
+    @if (!Model.IsSignedIn)
+    {
+        <p class="small text-muted mt-2 mb-0">Dashboard, achievements and saved lessons need a free account, so your progress has somewhere to live.</p>
+    }
+</section>
+
+<div class="row g-4">
+    @* ---------- Lesson previews ---------- *@
+    <section class="col-lg-8" aria-labelledby="lessons-heading">
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+            <h2 id="lessons-heading" class="h4 mb-0">@(Model.IsSignedIn ? "Your lessons" : "Lessons to start with")</h2>
+            <a asp-page="/Lessons/Index">View all @Model.PublishedLessonCount</a>
+        </div>
+        @if (Model.FeaturedLessons.Count == 0)
+        {
+            <div class="alert alert-info mb-0">No lessons published yet. Check back soon.</div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var lesson in Model.FeaturedLessons)
+                {
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                    <h3 class="h6 mb-0">
+                                        <a class="text-decoration-none stretched-link" asp-page="/Lessons/Detail" asp-route-slug="@lesson.Slug">@lesson.Title</a>
+                                    </h3>
+                                    @if (lesson.State == IndexModel.LessonState.Completed)
+                                    {
+                                        <span class="badge text-bg-success">✓ Completed</span>
+                                    }
+                                    else if (lesson.State == IndexModel.LessonState.InProgress)
+                                    {
+                                        <span class="badge text-bg-warning">In progress</span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(lesson.Summary))
+                                {
+                                    <p class="small text-muted mb-2">@lesson.Summary</p>
+                                }
+                                <div class="small text-muted mt-auto">
+                                    @(lesson.QuestionCount > 0 ? $"Includes a {lesson.QuestionCount}-question quiz" : "Reading only")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    @* ---------- Leaderboard preview ---------- *@
+    <section class="col-lg-4" aria-labelledby="top-heading">
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+            <h2 id="top-heading" class="h4 mb-0">Top learners</h2>
+            <a asp-page="/Leaderboard/Index">Full board</a>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <partial name="_Podium" model="Model.TopLearners" />
+            </div>
+        </div>
+    </section>
 </div>
+
+@* ---------- How it works ---------- *@
+<section class="mt-5" aria-labelledby="how-heading">
+    <h2 id="how-heading" class="h4 mb-3">How it works</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="d-flex gap-3">
+                <div class="sy-step" aria-hidden="true">1</div>
+                <div>
+                    <h3 class="h6 mb-1">Read a short lesson</h3>
+                    <p class="small text-muted mb-0">Each topic fits one sitting and builds on the one before it.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-3">
+                <div class="sy-step" aria-hidden="true">2</div>
+                <div>
+                    <h3 class="h6 mb-1">Check yourself</h3>
+                    <p class="small text-muted mb-0">Take the lesson quiz or a mixed practice round. Score 70% to pass.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-3">
+                <div class="sy-step" aria-hidden="true">3</div>
+                <div>
+                    <h3 class="h6 mb-1">Watch your progress</h3>
+                    <p class="small text-muted mb-0">Streaks, badges, charts and a leaderboard rank keep you coming back.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

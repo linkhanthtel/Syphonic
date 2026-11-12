@@ -10,9 +10,10 @@ public static class SeedData
     {
         using var scope = services.CreateScope();
         await using var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var createdNow = await db.Database.EnsureCreatedAsync();
-        if (!createdNow)
-            await EnsureSchemaIsCurrentAsync(db);
+        await BaselineLegacyDatabaseAsync(db);
+        // Applies any migrations in Migrations/ that this database hasn't run yet.
+        // A brand-new database gets every table; an existing one only gets what's new.
+        await db.Database.MigrateAsync();
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -56,25 +57,43 @@ public static class SeedData
     }
 
     /// <summary>
-    /// EnsureCreated only builds tables for a brand-new database. If syphonic.db was
-    /// created by an older version of the app, newer tables are missing, so fail fast
-    /// with instructions instead of crashing later with "no such table".
+    /// Before migrations were introduced, the app built its tables with EnsureCreated, which
+    /// leaves no "__EFMigrationsHistory" record. Calling Migrate() on such a database would try
+    /// to create tables that already exist and crash. If the database already matches the first
+    /// migration (InitialCreate), record that migration as applied so Migrate() continues from there.
+    /// This runs once per old database; afterwards the history table exists and it does nothing.
     /// </summary>
-    private static async Task EnsureSchemaIsCurrentAsync(ApplicationDbContext db)
+    private static async Task BaselineLegacyDatabaseAsync(ApplicationDbContext db)
     {
-        string[] requiredTables = ["QuizQuestions", "QuizAttempts"];
+        if (!await db.Database.CanConnectAsync() || await TableExistsAsync(db, "__EFMigrationsHistory"))
+            return;
 
-        foreach (var table in requiredTables)
-        {
-            var count = (await db.Database
-                .SqlQuery<int>($"SELECT COUNT(*) AS \"Value\" FROM sqlite_master WHERE type = 'table' AND name = {table}")
-                .ToListAsync()).Single();
+        if (!await TableExistsAsync(db, "Lessons"))
+            return; // Empty database: let Migrate() create everything.
 
-            if (count == 0)
-                throw new InvalidOperationException(
-                    $"The database is missing the '{table}' table because it was created by an older version of Syphonic. " +
-                    "Stop the app, delete Syphonic/syphonic.db (this resets local data), and run 'dotnet run' again.");
-        }
+        // InitialCreate includes the quiz tables. Databases older than that can't be baselined safely.
+        if (!await TableExistsAsync(db, "QuizQuestions") || !await TableExistsAsync(db, "QuizAttempts"))
+            throw new InvalidOperationException(
+                "syphonic.db was created by a very old version of Syphonic and can't be upgraded automatically. " +
+                "Stop the app, delete Syphonic/syphonic.db (this resets local data), and run 'dotnet run' again.");
+
+        var initialMigration = db.Database.GetMigrations().First();
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TABLE "__EFMigrationsHistory" (
+                "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+                "ProductVersion" TEXT NOT NULL
+            );
+            """);
+        await db.Database.ExecuteSqlAsync(
+            $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({initialMigration}, '9.0.0')");
+    }
+
+    private static async Task<bool> TableExistsAsync(ApplicationDbContext db, string table)
+    {
+        var count = (await db.Database
+            .SqlQuery<int>($"SELECT COUNT(*) AS \"Value\" FROM sqlite_master WHERE type = 'table' AND name = {table}")
+            .ToListAsync()).Single();
+        return count > 0;
     }
 
     private static async Task SeedLessonsAsync(ApplicationDbContext db)

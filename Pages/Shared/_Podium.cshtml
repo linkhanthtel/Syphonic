@@ -1,0 +1,39 @@
+@using System.Security.Claims
+@model IReadOnlyList<Syphonic.Services.LeaderboardEntry>
+@{
+    // Classic podium order on screen: 2nd on the left, 1st in the middle, 3rd on the right.
+    var slots = new[] { 2, 1, 3 };
+    var medals = new Dictionary<int, string> { [1] = "🥇", [2] = "🥈", [3] = "🥉" };
+    var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+@if (Model.Count == 0)
+{
+    <p class="text-muted small mb-0">No one is on the board yet. Complete a lesson or pass a quiz to claim first place.</p>
+}
+else
+{
+    <ol class="sy-podium list-unstyled mb-0" aria-label="Top three learners">
+        @foreach (var rank in slots)
+        {
+            var entry = Model.FirstOrDefault(e => e.Rank == rank);
+            <li class="sy-podium-slot sy-podium-@rank" style="order: @(rank == 1 ? 2 : rank == 2 ? 1 : 3)">
+                <div class="sy-podium-medal" aria-hidden="true">@medals[rank]</div>
+                @if (entry is null)
+                {
+                    <div class="sy-podium-name text-muted">Open spot</div>
+                    <div class="sy-podium-points">&nbsp;</div>
+                }
+                else
+                {
+                    @if (entry.UserId == myId)
+                    {
+                        <div><span class="badge text-bg-dark">You</span></div>
+                    }
+                    <div class="sy-podium-name" title="@entry.Name">@entry.Name</div>
+                    <div class="sy-podium-points">@entry.Points.ToString("N0") pts</div>
+                }
+                <div class="sy-podium-block"><span class="visually-hidden">Place </span>@rank</div>
+            </li>
+        }
+    </ol>
+}

@@ -1,6 +1,22 @@
 @using Microsoft.AspNetCore.Identity
 @using Syphonic.Data
 @inject SignInManager<ApplicationUser> SignInManager
+@{
+    // Work out which section we are in so the matching nav link can be highlighted.
+    var currentPage = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+    var currentArea = ViewContext.RouteData.Values["area"] as string ?? string.Empty;
+
+    bool IsSection(string prefix) =>
+        currentArea.Length == 0 &&
+        (prefix == "/Index"
+            ? currentPage == "/Index"
+            : currentPage.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+    string ActiveClass(string prefix) => IsSection(prefix) ? "active" : string.Empty;
+    string? AriaCurrent(string prefix) => IsSection(prefix) ? "page" : null;
+
+    var signedIn = SignInManager.IsSignedIn(User);
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,57 +28,58 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<a class="visually-hidden-focusable btn btn-light position-absolute m-2" href="#main" style="z-index: 1100">Skip to content</a>
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sy-navbar" aria-label="Main">
         <div class="container">
-            <a class="navbar-brand fw-semibold" asp-area="" asp-page="/Index">Syphonic</a>
+            <a class="navbar-brand fw-semibold" asp-area="" asp-page="/Index">🌍 Syphonic</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-page="/Learn/Index">Learn</a>
+                        <a class="nav-link @ActiveClass("/Index")" aria-current="@AriaCurrent("/Index")" asp-area="" asp-page="/Index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-page="/Lessons/Index">Lessons</a>
+                        <a class="nav-link @ActiveClass("/Lessons")" aria-current="@AriaCurrent("/Lessons")" asp-area="" asp-page="/Lessons/Index">Lessons</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-page="/Maps/Index">Maps</a>
+                        <a class="nav-link @ActiveClass("/Practice")" aria-current="@AriaCurrent("/Practice")" asp-area="" asp-page="/Practice/Index">Practice</a>
                     </li>
-                    @if (SignInManager.IsSignedIn(User))
+                    <li class="nav-item">
+                        <a class="nav-link @ActiveClass("/Maps")" aria-current="@AriaCurrent("/Maps")" asp-area="" asp-page="/Maps/Index">Maps</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @ActiveClass("/Leaderboard")" aria-current="@AriaCurrent("/Leaderboard")" asp-area="" asp-page="/Leaderboard/Index">Leaderboard</a>
+                    </li>
+                    @if (signedIn)
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Dashboard/Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Profile/Index">Profile</a>
-                        </li>
-                    }
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="Admin" asp-page="/Index">Admin</a>
+                            <a class="nav-link @ActiveClass("/Dashboard")" aria-current="@AriaCurrent("/Dashboard")" asp-area="" asp-page="/Dashboard/Index">Dashboard</a>
                         </li>
                     }
                 </ul>
+                <form class="sy-nav-search d-flex my-2 my-lg-0 me-lg-3" role="search" method="get" asp-area="" asp-page="/Lessons/Index">
+                    <input class="form-control form-control-sm" type="search" name="q" placeholder="Search lessons" aria-label="Search lessons" />
+                </form>
                 <partial name="_LoginPartial" />
             </div>
         </div>
     </nav>
 </header>
-<div class="container pb-5">
+<main id="main" class="container pt-4 pb-5">
     @RenderBody()
-</div>
+</main>
 <footer class="border-top footer text-muted py-3 mt-auto">
     <div class="container small d-flex flex-wrap gap-3 justify-content-between align-items-center">
         <span>&copy; @DateTime.UtcNow.Year Syphonic · Geography practice for everyone</span>
         <nav aria-label="Footer">
-            <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Privacy">Privacy</a>
-            <span class="text-muted mx-2" aria-hidden="true">·</span>
             <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Learn/Index">How we teach</a>
             <span class="text-muted mx-2" aria-hidden="true">·</span>
-            <span class="text-muted">Published lessons JSON: </span><a class="link-secondary text-decoration-none" href="/api/lessons/published">/api/lessons/published</a>
+            <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Privacy">Privacy</a>
+            <span class="text-muted mx-2" aria-hidden="true">·</span>
+            <a class="link-secondary text-decoration-none" href="/api/lessons/published">Lessons API</a>
         </nav>
     </div>
 </footer>

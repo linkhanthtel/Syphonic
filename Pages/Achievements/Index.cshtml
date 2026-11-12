@@ -1,0 +1,74 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Achievements";
+    var summary = Model.Summary;
+}
+
+<h1 class="mb-2">Achievements</h1>
+<p class="lead text-muted mb-4">
+    You've earned <strong class="text-body">@summary.EarnedCount of @summary.Badges.Count</strong> badges.
+    Reading lessons and taking quizzes keeps your streak alive.
+</p>
+
+<div class="row g-3 mb-5">
+    <div class="col-sm-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Current streak</div>
+                <div class="display-6">🔥 @summary.CurrentStreak day@(summary.CurrentStreak == 1 ? "" : "s")</div>
+                <div class="small text-muted">
+                    @if (summary.PracticedToday)
+                    {
+                        <span>You've practiced today. Nice!</span>
+                    }
+                    else if (summary.CurrentStreak > 0)
+                    {
+                        <span>Practice today to keep your streak going.</span>
+                    }
+                    else
+                    {
+                        <span>Open a lesson today to start a new streak.</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Longest streak</div>
+                <div class="display-6">⭐ @summary.LongestStreak day@(summary.LongestStreak == 1 ? "" : "s")</div>
+                <div class="small text-muted">Your personal best. Days are counted in UTC.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Badges</h2>
+<div class="row g-3">
+    @foreach (var badge in summary.Badges)
+    {
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100 shadow-sm achievement-badge @(badge.Earned ? "border-success" : "achievement-locked")">
+                <div class="card-body text-center">
+                    <div class="achievement-icon" aria-hidden="true">@badge.Icon</div>
+                    <h3 class="h6 mt-2 mb-1">@badge.Title</h3>
+                    <p class="small text-muted mb-2">@badge.Description</p>
+                    @if (badge.Earned)
+                    {
+                        <span class="badge text-bg-success">Earned</span>
+                    }
+                    else
+                    {
+                        <div class="progress mb-1" role="progressbar" style="height: .5rem"
+                             aria-label="@badge.Title progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@badge.ProgressPercent">
+                            <div class="progress-bar" style="width: @badge.ProgressPercent%"></div>
+                        </div>
+                        <div class="small text-muted">@badge.ProgressText</div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

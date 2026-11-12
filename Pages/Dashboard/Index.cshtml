@@ -1,84 +1,297 @@
 @page
 @model IndexModel
+@using Syphonic.Services
 @{
     ViewData["Title"] = "Dashboard";
+    var ach = Model.Achievements;
+    var hasActivity = Model.ActivityByDay.Any(d => d.Total > 0);
+
+    // Widths for the lesson-status bar. Parts with a zero count are left out entirely.
+    var total = Math.Max(Model.PublishedLessonCount, 1);
+    var statusParts = new[]
+    {
+        (Label: "Completed", Count: Model.CompletedLessons, Css: "sy-seg-done"),
+        (Label: "In progress", Count: Model.InProgressCount, Css: "sy-seg-doing"),
+        (Label: "Not started", Count: Model.NotStartedCount, Css: "sy-seg-todo")
+    };
 }
 
-<h1 class="mb-3">Your geography dashboard</h1>
-<p class="lead text-muted mb-4">Track lesson completion at a glance, keep daily touchpoints, and pick up where you left off.</p>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Your dashboard</h1>
+        <p class="text-muted mb-0">Progress, practice habits and quiz results at a glance.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" asp-page="/Lessons/Index">Continue learning</a>
+        <a class="btn btn-outline-secondary" asp-page="/Practice/Index">Practice round</a>
+    </div>
+</div>
 
-<div class="row g-4">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm h-100">
+@* ---------- Headline numbers ---------- *@
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card sy-stat h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted text-uppercase small mb-2">Publication progress</h2>
-                <div class="d-flex flex-column flex-xl-row gap-4 align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="display-6 mb-1">@Model.CompletedLessons / @Model.PublishedLessonCount</p>
-                        <p class="small text-muted mb-2">Completed versus every published lesson Syphonic exposes today.</p>
-                        @{
-                            var percent = Model.PublishedLessonCount == 0 ? 0 : Model.CompletionPercent;
-                        }
-                        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@percent">
-                            <div class="progress-bar bg-success progress-bar-striped" style="width: @percent%">@percent%</div>
-                        </div>
-                        @if (Model.LastLessonCompletedAt is DateTimeOffset lastComplete)
-                        {
-                            <div class="text-muted small mt-2 mb-0">Last celebration: @lastComplete.ToLocalTime().ToString("MMMM d • h:mm tt")</div>
-                        }
-                    </div>
-                    <div class="border rounded p-3 flex-shrink-0 w-100" style="max-width:260px;">
-                        <h3 class="h6 text-muted">Rhythm helpers</h3>
-                        <ul class="list-unstyled small mb-3">
-                            <li class="d-flex justify-content-between py-1">
-                                <span class="text-muted">In-progress topics</span>
-                                <strong>@Model.InProgressCount</strong>
-                            </li>
-                            <li class="d-flex justify-content-between py-1 border-top">
-                                <span class="text-muted">Practice days last 7d</span>
-                                <strong>@Model.DistinctPracticeDaysRecent</strong>
-                            </li>
-                            <li class="d-flex justify-content-between py-1 border-top">
-                                <span class="text-muted">Quizzes taken</span>
-                                <strong>@Model.QuizzesTaken</strong>
-                            </li>
-                            <li class="d-flex justify-content-between py-1 border-top">
-                                <span class="text-muted">Avg best quiz score</span>
-                                <strong>@(Model.AverageBestQuizPercent is int avg ? $"{avg}%" : "–")</strong>
-                            </li>
-                        </ul>
-                        <div class="d-grid gap-2">
-                            <a class="btn btn-primary btn-sm" asp-page="/Lessons/Index">Browse lessons</a>
-                            <a class="btn btn-outline-secondary btn-sm" asp-page="/Maps/Index">Open maps lab</a>
-                        </div>
-                    </div>
+                <div class="sy-stat-label">Lessons completed</div>
+                <div class="sy-stat-value">@Model.CompletedLessons <span class="sy-stat-unit">/ @Model.PublishedLessonCount</span></div>
+                <div class="progress mt-2" role="progressbar" aria-label="Course completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Model.CompletionPercent" style="height: .4rem">
+                    <div class="progress-bar sy-bar-fill" style="width: @Model.CompletionPercent%"></div>
+                </div>
+                <div class="sy-stat-note">@Model.CompletionPercent% of the course</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card sy-stat h-100">
+            <div class="card-body">
+                <div class="sy-stat-label">Current streak</div>
+                <div class="sy-stat-value">🔥 @(ach?.CurrentStreak ?? 0) <span class="sy-stat-unit">day@(ach?.CurrentStreak == 1 ? "" : "s")</span></div>
+                <div class="sy-stat-note">
+                    @(ach?.PracticedToday == true ? "Practised today." : "Not practised yet today.")
+                    Best: @(ach?.LongestStreak ?? 0).
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 bg-body-secondary shadow-sm h-100">
+    <div class="col-6 col-lg-3">
+        <div class="card sy-stat h-100">
             <div class="card-body">
-                <h2 class="h6 text-muted">Suggested next hops</h2>
+                <div class="sy-stat-label">Average best quiz score</div>
+                <div class="sy-stat-value">@(Model.AverageBestQuizPercent is int avg ? $"{avg}%" : "–")</div>
+                <div class="sy-stat-note">Across @Model.QuizzesTaken quiz@(Model.QuizzesTaken == 1 ? "" : "zes") · pass mark @QuizResult.PassPercent%</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card sy-stat h-100">
+            <div class="card-body">
+                <div class="sy-stat-label">Leaderboard</div>
+                <div class="sy-stat-value">
+                    @if (Model.MyRank is { } rank)
+                    {
+                        <text>#@rank.Rank <span class="sy-stat-unit">of @Model.RankedLearnerCount</span></text>
+                    }
+                    else
+                    {
+                        <text>–</text>
+                    }
+                </div>
+                <div class="sy-stat-note">@((Model.MyRank?.Points ?? 0).ToString("N0")) points</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    @* ---------- Bar chart: activity per day ---------- *@
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-0">Activity, last @IndexModel.ActivityWindowDays days</h2>
+                <p class="small text-muted mb-3">
+                    Lessons opened or finished, and quizzes or practice rounds taken, per day (UTC).
+                    Active on @Model.DistinctPracticeDaysRecent of the last 7 days.
+                </p>
+                @if (hasActivity)
+                {
+                    <div class="sy-chart"><canvas id="activityChart" role="img" aria-label="Stacked bar chart of daily activity for the last @IndexModel.ActivityWindowDays days"></canvas></div>
+                    <details class="small mt-2">
+                        <summary class="text-muted">View as table</summary>
+                        <table class="table table-sm mt-2 mb-0">
+                            <thead><tr><th>Day</th><th class="text-end">Lessons</th><th class="text-end">Quizzes &amp; practice</th></tr></thead>
+                            <tbody>
+                                @foreach (var day in Model.ActivityByDay)
+                                {
+                                    <tr><td>@day.Day.ToString("MMM d")</td><td class="text-end">@day.Lessons</td><td class="text-end">@day.Quizzes</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </details>
+                }
+                else
+                {
+                    <div class="sy-empty">No activity in the last @IndexModel.ActivityWindowDays days. Open a lesson to put the first bar on this chart.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ---------- Lesson status bar + best score per quiz ---------- *@
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Lesson status</h2>
+                @if (Model.PublishedLessonCount == 0)
+                {
+                    <div class="sy-empty">No lessons are published yet.</div>
+                }
+                else
+                {
+                    <div class="sy-segbar" role="img"
+                         aria-label="@Model.CompletedLessons completed, @Model.InProgressCount in progress, @Model.NotStartedCount not started">
+                        @foreach (var part in statusParts.Where(p => p.Count > 0))
+                        {
+                            <div class="sy-seg @part.Css" style="flex: @part.Count 1 0" title="@part.Label: @part.Count">@part.Count</div>
+                        }
+                    </div>
+                    <ul class="sy-legend list-unstyled d-flex flex-wrap gap-3 small mt-2 mb-0">
+                        @foreach (var part in statusParts)
+                        {
+                            <li><span class="sy-swatch @part.Css" aria-hidden="true"></span>@part.Label (@part.Count)</li>
+                        }
+                    </ul>
+                }
+
+                <h2 class="h6 mt-4 mb-3">Best score per quiz</h2>
+                @if (Model.BestScores.Count == 0)
+                {
+                    <div class="sy-empty">Take a lesson quiz while signed in and your best scores will line up here.</div>
+                }
+                else
+                {
+                    <ul class="list-unstyled d-grid gap-3 mb-0">
+                        @foreach (var best in Model.BestScores)
+                        {
+                            <li>
+                                <div class="d-flex justify-content-between gap-2 small mb-1">
+                                    <a class="text-decoration-none text-truncate" asp-page="/Lessons/Quiz" asp-route-slug="@best.Slug">@best.LessonTitle</a>
+                                    <span class="text-nowrap">
+                                        <strong>@best.Percent%</strong>
+                                        <span class="text-muted">· @best.Attempts attempt@(best.Attempts == 1 ? "" : "s")</span>
+                                    </span>
+                                </div>
+                                <div class="sy-meter" role="progressbar" aria-label="Best score on @best.LessonTitle" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@best.Percent">
+                                    <div class="sy-meter-fill" style="width: @best.Percent%"></div>
+                                    <div class="sy-meter-mark" style="left: @QuizResult.PassPercent%" title="Pass mark @QuizResult.PassPercent%"></div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <p class="small text-muted mt-2 mb-0">The tick on each bar marks the @QuizResult.PassPercent% pass mark.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    @* ---------- Scatter plot: every quiz attempt ---------- *@
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-0">Quiz attempts</h2>
+                <p class="small text-muted mb-3">Each dot is one attempt, in the order you took them. Dots above the dashed line passed.</p>
+                @if (Model.QuizAttempts.Count > 0)
+                {
+                    <div class="sy-chart"><canvas id="attemptsChart" role="img" aria-label="Scatter plot of quiz scores by attempt number"></canvas></div>
+                    <details class="small mt-2">
+                        <summary class="text-muted">View as table</summary>
+                        <table class="table table-sm mt-2 mb-0">
+                            <thead><tr><th>#</th><th>Quiz</th><th>Taken</th><th class="text-end">Score</th><th>Result</th></tr></thead>
+                            <tbody>
+                                @foreach (var attempt in Model.QuizAttempts)
+                                {
+                                    <tr>
+                                        <td>@attempt.Number</td>
+                                        <td>@attempt.LessonTitle</td>
+                                        <td>@attempt.TakenAt.UtcDateTime.ToString("MMM d, yyyy")</td>
+                                        <td class="text-end">@attempt.Score/@attempt.Total (@attempt.Percent%)</td>
+                                        <td>@(attempt.Passed ? "Passed" : "Below pass mark")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </details>
+                }
+                else
+                {
+                    <div class="sy-empty">No quiz attempts saved yet. Each quiz you take adds a dot here so you can watch your scores climb.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ---------- Podium ---------- *@
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-baseline mb-3">
+                    <h2 class="h6 mb-0">Top learners</h2>
+                    <a class="small" asp-page="/Leaderboard/Index">Full leaderboard</a>
+                </div>
+                <partial name="_Podium" model="Model.TopLearners" />
+                <p class="small text-muted mt-3 mb-0">
+                    @if (Model.MyRank is { } me)
+                    {
+                        <span>You are <strong class="text-body">#@me.Rank</strong> with @me.Points.ToString("N0") points.</span>
+                    }
+                    else
+                    {
+                        <span>Complete a lesson or pass a quiz to join the board.</span>
+                    }
+                    @LeaderboardService.PointsPerLesson points per completed lesson, plus your best percent on each quiz.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Up next</h2>
                 @if (!Model.SuggestedLessons.Any())
                 {
-                    <p class="small mb-0">Amazing—you tackled every lesson we’ve published.</p>
+                    <p class="small mb-0">You have completed every published lesson. A <a asp-page="/Practice/Index">practice round</a> keeps it fresh.</p>
                 }
                 else
                 {
                     <ul class="list-group list-group-flush">
                         @foreach (var suggestion in Model.SuggestedLessons)
                         {
-                            <li class="list-group-item px-0 bg-transparent">
-                                <div class="d-flex gap-3 align-items-start">
-                                    <div class="flex-grow-1">
-                                        <a class="fw-semibold text-decoration-none" asp-page="/Lessons/Detail" asp-route-slug="@suggestion.Slug">@suggestion.Title</a>
-                                        @if (!string.IsNullOrWhiteSpace(suggestion.Summary))
-                                        {
-                                            <div class="text-muted small">@suggestion.Summary</div>
-                                        }
-                                    </div>
+                            <li class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <a class="fw-semibold text-decoration-none" asp-page="/Lessons/Detail" asp-route-slug="@suggestion.Slug">@suggestion.Title</a>
+                                    @if (suggestion.InProgress)
+                                    {
+                                        <span class="badge text-bg-warning">In progress</span>
+                                    }
                                 </div>
+                                @if (!string.IsNullOrWhiteSpace(suggestion.Summary))
+                                {
+                                    <div class="text-muted small">@suggestion.Summary</div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Achievements/Index">🏅 @(ach?.EarnedCount ?? 0) / @(ach?.Badges.Count ?? 0) badges</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Bookmarks/Index">★ @Model.SavedLessonCount saved</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Recent activity</h2>
+                @if (!Model.RecentActivities.Any())
+                {
+                    <div class="sy-empty">Nothing logged yet. Open a lesson to begin your trail.</div>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <li class="list-group-item px-0">
+                                <div class="d-flex justify-content-between flex-wrap gap-2">
+                                    <span class="fw-semibold">@ActivityKindFormatter.ToDisplayName(activity.Kind)</span>
+                                    <span class="text-muted small">@activity.CreatedAt.ToLocalTime().ToString("MMM d · h:mm tt")</span>
+                                </div>
+                                <div class="small">@activity.Description</div>
                             </li>
                         }
                     </ul>
@@ -88,26 +301,9 @@
     </div>
 </div>
 
-<div class="mt-5">
-    <h2 class="h5 mb-3">Recent activity</h2>
-    @if (!Model.RecentActivities.Any())
-    {
-        <div class="alert alert-light border">Nothing logged yet—open a lesson to begin your trail.</div>
-    }
-    else
-    {
-        <ul class="list-group shadow-sm">
-            @foreach (var activity in Model.RecentActivities)
-            {
-                var label = ActivityKindFormatter.ToDisplayName(activity.Kind);
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between flex-wrap gap-2">
-                        <div class="fw-semibold">@label</div>
-                        <div class="text-muted small">@activity.CreatedAt.ToLocalTime().ToString("f")</div>
-                    </div>
-                    <div class="mt-1">@activity.Description</div>
-                </li>
-            }
-        </ul>
-    }
-</div>
+@section Scripts {
+    @* Chart numbers travel as JSON (not executable script); dashboard.js reads and draws them. *@
+    <script id="dashboard-data" type="application/json">@Html.Raw(Json.Serialize(Model.ChartData))</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}

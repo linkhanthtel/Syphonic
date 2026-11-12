@@ -92,3 +92,282 @@ footer.footer {
     background-color: var(--bs-danger-bg-subtle, #f8d7da);
     text-decoration: line-through;
 }
+
+/* Achievements: badge icon size, and greyed-out look until earned */
+.achievement-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.achievement-locked .achievement-icon {
+    filter: grayscale(1);
+    opacity: .45;
+}
+
+/* ---------- Navigation ---------- */
+.sy-navbar .nav-link {
+    border-radius: .375rem;
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+.sy-navbar .nav-link.active {
+    background-color: rgba(255, 255, 255, .14);
+    font-weight: 600;
+}
+
+.sy-nav-search .form-control {
+    min-width: 11rem;
+}
+
+/* Long email addresses must not push the menu off the bar. */
+.sy-account-name {
+    display: inline-block;
+    max-width: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+
+/* ---------- Home ---------- */
+.sy-hero {
+    background: linear-gradient(135deg, #0d366b 0%, #1c5cab 60%, #2a78d6 100%);
+    color: #fff;
+}
+
+.sy-hero-kicker {
+    color: #cde2fb;
+    letter-spacing: .06em;
+}
+
+.sy-hero-panel {
+    background-color: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.sy-hero-panel .progress {
+    background-color: rgba(255, 255, 255, .25);
+}
+
+.sy-hero-panel .progress-bar {
+    background-color: #fff;
+}
+
+.sy-tile {
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.sy-tile:hover,
+.sy-tile:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--bs-box-shadow);
+}
+
+.sy-tile-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    margin-bottom: .5rem;
+}
+
+.sy-step {
+    flex: 0 0 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: #1c5cab;
+    color: #fff;
+    font-weight: 600;
+    display: grid;
+    place-items: center;
+}
+
+/* ---------- Lessons ---------- */
+.sy-lesson-number {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--bs-secondary-bg);
+    font-weight: 600;
+    font-size: .875rem;
+    display: grid;
+    place-items: center;
+}
+
+.sy-lesson-done {
+    border-color: var(--bs-success-border-subtle);
+}
+
+.sy-lesson-done .sy-lesson-number {
+    background-color: var(--bs-success-bg-subtle);
+}
+
+.sy-lesson-search {
+    min-width: min(100%, 22rem);
+}
+
+/* ---------- Dashboard ----------
+   Chart colours (kept in step with wwwroot/js/dashboard.js):
+   blue #2a78d6 = first series / "done", orange #eb6834 = second series / "in progress". */
+.sy-stat-label {
+    color: var(--bs-secondary-color);
+    font-size: .8125rem;
+}
+
+.sy-stat-value {
+    font-size: 1.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.sy-stat-unit {
+    color: var(--bs-secondary-color);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.sy-stat-note {
+    color: var(--bs-secondary-color);
+    font-size: .8125rem;
+    margin-top: .25rem;
+}
+
+.sy-bar-fill {
+    background-color: #2a78d6;
+}
+
+.sy-chart {
+    position: relative;
+    height: 280px;
+}
+
+.sy-empty {
+    border: 1px dashed var(--bs-border-color);
+    border-radius: .5rem;
+    color: var(--bs-secondary-color);
+    font-size: .875rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+
+/* Segmented bar: one whole (all lessons) split into its parts. */
+.sy-segbar {
+    display: flex;
+    gap: 2px;
+    height: 2.5rem;
+}
+
+.sy-seg {
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 600;
+    min-width: 1.75rem;
+    display: grid;
+    place-items: center;
+}
+
+.sy-seg-done {
+    background-color: #2a78d6;
+}
+
+.sy-seg-doing {
+    background-color: #eb6834;
+}
+
+.sy-seg-todo {
+    background-color: #dee2e6;
+    color: #212529;
+}
+
+.sy-swatch {
+    display: inline-block;
+    width: .75rem;
+    height: .75rem;
+    border-radius: 3px;
+    margin-right: .375rem;
+}
+
+/* Meter: one score out of 100, with a tick at the pass mark. */
+.sy-meter {
+    position: relative;
+    height: .5rem;
+    border-radius: 4px;
+    background-color: #dbe7f6;
+}
+
+.sy-meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    background-color: #2a78d6;
+}
+
+.sy-meter-mark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background-color: #212529;
+}
+
+/* ---------- Podium ---------- */
+.sy-podium {
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+}
+
+.sy-podium-slot {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+}
+
+.sy-podium-medal {
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+.sy-podium-name {
+    font-size: .875rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sy-podium-points {
+    color: var(--bs-secondary-color);
+    font-size: .8125rem;
+    margin-bottom: .375rem;
+}
+
+.sy-podium-block {
+    border-radius: 6px 6px 0 0;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+}
+
+/* Taller and darker = higher place. */
+.sy-podium-1 .sy-podium-block {
+    height: 7rem;
+    background-color: #184f95;
+}
+
+.sy-podium-2 .sy-podium-block {
+    height: 5rem;
+    background-color: #2a78d6;
+}
+
+.sy-podium-3 .sy-podium-block {
+    height: 3.5rem;
+    background-color: #86b6ef;
+    color: #0d366b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sy-tile {
+        transition: none;
+    }
+}

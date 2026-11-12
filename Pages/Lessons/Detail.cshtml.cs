@@ -29,6 +29,8 @@ public class DetailModel : PageModel
 
     public int? BestQuizPercent { get; private set; }
 
+    public bool IsBookmarked { get; private set; }
+
     public LessonLink? PreviousLesson { get; private set; }
 
     public LessonLink? NextLesson { get; private set; }
@@ -69,7 +71,42 @@ public class DetailModel : PageModel
             .ToListAsync(cancellationToken);
         BestQuizPercent = attempts.Count == 0 ? null : attempts.Max(a => a.Percent);
 
+        IsBookmarked = await _db.Bookmarks.AnyAsync(b => b.UserId == userId && b.LessonId == Lesson.Id, cancellationToken);
+
         return Page();
+    }
+
+    /// <summary>Saves or un-saves this lesson for the signed-in learner (form: asp-page-handler="Bookmark").</summary>
+    public async Task<IActionResult> OnPostBookmarkAsync(string slug, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null)
+            return Challenge(); // sends guests to the login page
+
+        var query = _db.Lessons.AsQueryable();
+        if (!User.IsInRole("Admin"))
+            query = query.Where(l => l.Published);
+
+        var lesson = await query.FirstOrDefaultAsync(l => l.Slug == slug, cancellationToken);
+        if (lesson is null)
+            return NotFound();
+
+        var existing = await _db.Bookmarks
+            .FirstOrDefaultAsync(b => b.UserId == userId && b.LessonId == lesson.Id, cancellationToken);
+
+        if (existing is null)
+        {
+            _db.Bookmarks.Add(new Bookmark { UserId = userId, LessonId = lesson.Id });
+            StatusMessage = "Saved to your reading list.";
+        }
+        else
+        {
+            _db.Bookmarks.Remove(existing);
+            StatusMessage = "Removed from your reading list.";
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return RedirectToPage(new { slug });
     }
 
     /// <summary>

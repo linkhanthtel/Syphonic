@@ -1,0 +1,88 @@
+@page
+@model IndexModel
+@using Syphonic.Services
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+<h1 class="mb-1">Leaderboard</h1>
+<p class="text-muted mb-4">
+    Earn @LeaderboardService.PointsPerLesson points for every lesson you complete, plus your best percent on each lesson quiz.
+</p>
+
+@if (Model.TotalRanked == 0)
+{
+    <div class="alert alert-info">Nobody has scored yet. Complete a lesson or take a quiz to be the first name here.</div>
+    <a class="btn btn-primary" asp-page="/Lessons/Index">Go to lessons</a>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 mb-3">Top three</h2>
+                    <partial name="_Podium" model="Model.TopThree" />
+                </div>
+            </div>
+            <p class="small text-muted mt-3 mb-0">
+                Names come from each learner's profile. Learners without a display name appear as “Explorer” plus a short code;
+                email addresses are never shown.
+                @if (Model.MyUserId is not null)
+                {
+                    <a asp-page="/Profile/Index">Set your display name</a>
+                }
+            </p>
+        </div>
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="ps-3">Rank</th>
+                                <th scope="col">Learner</th>
+                                <th scope="col" class="text-end">Lessons</th>
+                                <th scope="col" class="text-end">Quizzes passed</th>
+                                <th scope="col" class="text-end pe-3">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in Model.Rows)
+                            {
+                                <tr class="@(entry.UserId == Model.MyUserId ? "table-primary" : null)">
+                                    <td class="ps-3 fw-semibold">@entry.Rank</td>
+                                    <td>
+                                        @entry.Name
+                                        @if (entry.UserId == Model.MyUserId)
+                                        {
+                                            <span class="badge text-bg-dark ms-1">You</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">@entry.LessonsCompleted</td>
+                                    <td class="text-end">@entry.QuizzesPassed</td>
+                                    <td class="text-end pe-3 fw-semibold">@entry.Points.ToString("N0")</td>
+                                </tr>
+                            }
+                            @if (Model.MyRowBelowTable is { } mine)
+                            {
+                                <tr><td colspan="5" class="text-center text-muted small py-1">…</td></tr>
+                                <tr class="table-primary">
+                                    <td class="ps-3 fw-semibold">@mine.Rank</td>
+                                    <td>@mine.Name <span class="badge text-bg-dark ms-1">You</span></td>
+                                    <td class="text-end">@mine.LessonsCompleted</td>
+                                    <td class="text-end">@mine.QuizzesPassed</td>
+                                    <td class="text-end pe-3 fw-semibold">@mine.Points.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (Model.TotalRanked > Model.Rows.Count)
+            {
+                <p class="small text-muted mt-2 mb-0">Showing the top @Model.Rows.Count of @Model.TotalRanked learners.</p>
+            }
+        </div>
+    </div>
+}

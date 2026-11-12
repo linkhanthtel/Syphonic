@@ -1,0 +1,51 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Saved lessons";
+}
+
+<h1 class="mb-2">Saved lessons</h1>
+<p class="lead text-muted mb-4">Your personal reading list. Save any lesson with the ☆ button at the top of the lesson.</p>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-light border">
+        Nothing saved yet. <a asp-page="/Lessons/Index">Browse the lesson library</a> and tap “Save for later” on anything you want to come back to.
+    </div>
+}
+else
+{
+    <ul class="list-group shadow-sm">
+        @foreach (var item in Model.Items)
+        {
+            <li class="list-group-item d-flex flex-column flex-md-row justify-content-between gap-2">
+                <div>
+                    <a class="fw-semibold text-decoration-none" asp-page="/Lessons/Detail" asp-route-slug="@item.Slug">@item.Title</a>
+                    @if (item.IsCompleted)
+                    {
+                        <span class="badge text-bg-success ms-1">Completed</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.Summary))
+                    {
+                        <div class="text-muted small">@item.Summary</div>
+                    }
+                    <div class="text-muted small">Saved @item.SavedAt.ToLocalTime().ToString("MMM d, yyyy")</div>
+                </div>
+                <div class="d-flex gap-2 align-items-start">
+                    <a class="btn btn-primary btn-sm" asp-page="/Lessons/Detail" asp-route-slug="@item.Slug">
+                        @(item.IsCompleted ? "Review" : "Read")
+                    </a>
+                    <form method="post" asp-page-handler="Remove">
+                        <input type="hidden" name="lessonId" value="@item.LessonId" />
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
+}

@@ -21,6 +21,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
 
+    public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -69,6 +71,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.Lesson)
                 .WithMany(l => l.Questions)
                 .HasForeignKey(e => e.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Bookmark>(entity =>
+        {
+            // A learner can save each lesson only once; also speeds up "is this saved?" lookups.
+            entity.HasIndex(e => new { e.UserId, e.LessonId }).IsUnique();
+            entity.HasOne(e => e.Lesson)
+                .WithMany()
+                .HasForeignKey(e => e.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

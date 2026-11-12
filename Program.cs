@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Syphonic.Data;
+using Syphonic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
+
+// App services (Scoped = one instance per HTTP request, safe to use with ApplicationDbContext).
+builder.Services.AddScoped<AchievementService>();
+builder.Services.AddScoped<LeaderboardService>();
 
 builder.Services.AddControllers();
 builder.Services.AddRazorPages(options =>

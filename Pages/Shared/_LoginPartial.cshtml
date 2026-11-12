@@ -1,26 +1,42 @@
 @using Microsoft.AspNetCore.Identity
 @using Syphonic.Data
 @inject SignInManager<ApplicationUser> SignInManager
-<ul class="navbar-nav">
+<ul class="navbar-nav align-items-lg-center">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <span class="navbar-text text-secondary me-lg-3">@(User.Identity?.Name ?? "Signed in")</span>
-        </li>
-        <li class="nav-item">
-            <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Page("/Index")">
-                <button type="submit" class="nav-link btn btn-link link-light text-decoration-none p-0">Log out</button>
-            </form>
+        @* Everything personal lives in one account menu so the main bar stays short. *@
+        <li class="nav-item dropdown">
+            <button class="nav-link dropdown-toggle btn btn-link text-decoration-none sy-account-toggle" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="sy-account-name">@(User.Identity?.Name ?? "Account")</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">My learning</h6></li>
+                <li><a class="dropdown-item" asp-area="" asp-page="/Dashboard/Index">📊 Dashboard</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-page="/Bookmarks/Index">★ Saved lessons</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-page="/Achievements/Index">🏅 Achievements</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><a class="dropdown-item" asp-area="" asp-page="/Profile/Index">Profile</a></li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li><a class="dropdown-item" asp-area="Admin" asp-page="/Index">Admin</a></li>
+                }
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
+                        <button type="submit" class="dropdown-item">Log out</button>
+                    </form>
+                </li>
+            </ul>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Log in</a>
+        </li>
+        <li class="nav-item ms-lg-2">
+            <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">Create account</a>
         </li>
     }
 </ul>
