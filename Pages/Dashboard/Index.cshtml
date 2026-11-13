@@ -45,7 +45,7 @@
         <div class="card sy-stat h-100">
             <div class="card-body">
                 <div class="sy-stat-label">Current streak</div>
-                <div class="sy-stat-value">🔥 @(ach?.CurrentStreak ?? 0) <span class="sy-stat-unit">day@(ach?.CurrentStreak == 1 ? "" : "s")</span></div>
+                <div class="sy-stat-value">@(ach?.CurrentStreak ?? 0) <span class="sy-stat-unit">day@(ach?.CurrentStreak == 1 ? "" : "s")</span></div>
                 <div class="sy-stat-note">
                     @(ach?.PracticedToday == true ? "Practised today." : "Not practised yet today.")
                     Best: @(ach?.LongestStreak ?? 0).
@@ -267,8 +267,8 @@
                     </ul>
                 }
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Achievements/Index">🏅 @(ach?.EarnedCount ?? 0) / @(ach?.Badges.Count ?? 0) badges</a>
-                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Bookmarks/Index">★ @Model.SavedLessonCount saved</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Achievements/Index">@(ach?.EarnedCount ?? 0) / @(ach?.Badges.Count ?? 0) badges</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Bookmarks/Index">@Model.SavedLessonCount saved</a>
                 </div>
             </div>
         </div>

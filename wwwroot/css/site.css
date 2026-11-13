@@ -93,15 +93,9 @@ footer.footer {
     text-decoration: line-through;
 }
 
-/* Achievements: badge icon size, and greyed-out look until earned */
-.achievement-icon {
-    font-size: 2.5rem;
-    line-height: 1;
-}
-
-.achievement-locked .achievement-icon {
-    filter: grayscale(1);
-    opacity: .45;
+/* Achievements: badges not yet earned are toned down */
+.achievement-locked {
+    background-color: var(--bs-tertiary-bg);
 }
 
 /* ---------- Navigation ---------- */
@@ -162,12 +156,6 @@ footer.footer {
 .sy-tile:focus-visible {
     transform: translateY(-2px);
     box-shadow: var(--bs-box-shadow);
-}
-
-.sy-tile-icon {
-    font-size: 1.75rem;
-    line-height: 1;
-    margin-bottom: .5rem;
 }
 
 .sy-step {
@@ -319,11 +307,6 @@ footer.footer {
     flex: 1 1 0;
     min-width: 0;
     text-align: center;
-}
-
-.sy-podium-medal {
-    font-size: 1.75rem;
-    line-height: 1.2;
 }
 
 .sy-podium-name {

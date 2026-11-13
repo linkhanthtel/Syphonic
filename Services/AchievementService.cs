@@ -59,21 +59,21 @@ public class AchievementService
 
         var badges = new List<Badge>
         {
-            new("first-steps",   "👣", "First steps",   "Open your first lesson.",                         lessonsStarted,          1),
-            new("bookworm",      "📚", "Bookworm",      "Complete 3 lessons.",                             lessonsCompleted,        3),
-            new("explorer",      "🌍", "World explorer", "Complete every published lesson.",                publishedCompleted,      Math.Max(publishedIds.Count, 1)),
-            new("quiz-taker",    "📝", "Quiz taker",    "Take your first quiz.",                           quizzesTaken,            1),
-            new("perfect-score", "🎯", "Perfect score", "Get 100% on any quiz.",                           hasPerfectScore ? 1 : 0, 1),
-            new("quiz-master",   "🏆", "Quiz master",   $"Pass ({QuizResult.PassPercent}%+) 3 different quizzes.", quizzesPassed, 3),
-            new("on-a-roll",     "🔥", "On a roll",     "Practice 3 days in a row.",                       streak.Longest,          3),
-            new("week-warrior",  "⚡", "Week warrior",  "Practice 7 days in a row.",                       streak.Longest,          7),
+            new("first-steps",   "First steps",   "Open your first lesson.",                         lessonsStarted,          1),
+            new("bookworm",      "Bookworm",      "Complete 3 lessons.",                             lessonsCompleted,        3),
+            new("explorer",      "World explorer", "Complete every published lesson.",                publishedCompleted,      Math.Max(publishedIds.Count, 1)),
+            new("quiz-taker",    "Quiz taker",    "Take your first quiz.",                           quizzesTaken,            1),
+            new("perfect-score", "Perfect score", "Get 100% on any quiz.",                           hasPerfectScore ? 1 : 0, 1),
+            new("quiz-master",   "Quiz master",   $"Pass ({QuizResult.PassPercent}%+) 3 different quizzes.", quizzesPassed, 3),
+            new("on-a-roll",     "On a roll",     "Practice 3 days in a row.",                       streak.Longest,          3),
+            new("week-warrior",  "Week warrior",  "Practice 7 days in a row.",                       streak.Longest,          7),
         };
 
         return new AchievementSummary(streak.Current, streak.Longest, streak.PracticedToday, badges);
     }
 }
 
-public sealed record Badge(string Key, string Icon, string Title, string Description, int Current, int Target)
+public sealed record Badge(string Key, string Title, string Description, int Current, int Target)
 {
     public bool Earned => Current >= Target;
 

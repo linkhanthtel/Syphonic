@@ -63,7 +63,7 @@ else
                         {
                             <li class="@(option.Index == question.CorrectOption ? "fw-semibold text-success" : null)">
                                 @option.Letter. @option.Text
-                                @if (option.Index == question.CorrectOption) { <span>✓</span> }
+                                @if (option.Index == question.CorrectOption) { <span class="badge text-bg-success">Correct</span> }
                             </li>
                         }
                     </ul>

@@ -3,7 +3,6 @@
 @{
     // Classic podium order on screen: 2nd on the left, 1st in the middle, 3rd on the right.
     var slots = new[] { 2, 1, 3 };
-    var medals = new Dictionary<int, string> { [1] = "🥇", [2] = "🥈", [3] = "🥉" };
     var myId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 @if (Model.Count == 0)
@@ -17,7 +16,6 @@ else
         {
             var entry = Model.FirstOrDefault(e => e.Rank == rank);
             <li class="sy-podium-slot sy-podium-@rank" style="order: @(rank == 1 ? 2 : rank == 2 ? 1 : 3)">
-                <div class="sy-podium-medal" aria-hidden="true">@medals[rank]</div>
                 @if (entry is null)
                 {
                     <div class="sy-podium-name text-muted">Open spot</div>

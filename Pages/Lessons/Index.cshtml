@@ -10,7 +10,7 @@
         <h1 class="mb-1">Lessons</h1>
         <p class="text-muted mb-0">Read a lesson, then practise it with its quiz. Score @QuizResult.PassPercent% or more to pass.</p>
     </div>
-    <a class="btn btn-outline-primary" asp-page="/Practice/Index">🎯 Mixed practice round</a>
+    <a class="btn btn-outline-primary" asp-page="/Practice/Index">Mixed practice round</a>
 </div>
 
 @* ---------- Course progress (signed-in) or a sign-up nudge (guests) ---------- *@
@@ -35,7 +35,7 @@
             }
             else
             {
-                <span class="badge text-bg-success fs-6 flex-shrink-0">✓ Course complete</span>
+                <span class="badge text-bg-success fs-6 flex-shrink-0">Course complete</span>
             }
         </div>
     </div>
@@ -119,11 +119,11 @@ else
                                 }
                                 @if (lesson.IsBookmarked)
                                 {
-                                    <span class="badge text-bg-light border">★ Saved</span>
+                                    <span class="badge text-bg-light border">Saved</span>
                                 }
                                 @if (lesson.IsCompleted)
                                 {
-                                    <span class="badge text-bg-success">✓ Completed</span>
+                                    <span class="badge text-bg-success">Completed</span>
                                 }
                                 else if (inProgress)
                                 {

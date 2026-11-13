@@ -16,7 +16,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Current streak</div>
-                <div class="display-6">🔥 @summary.CurrentStreak day@(summary.CurrentStreak == 1 ? "" : "s")</div>
+                <div class="display-6">@summary.CurrentStreak day@(summary.CurrentStreak == 1 ? "" : "s")</div>
                 <div class="small text-muted">
                     @if (summary.PracticedToday)
                     {
@@ -38,7 +38,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Longest streak</div>
-                <div class="display-6">⭐ @summary.LongestStreak day@(summary.LongestStreak == 1 ? "" : "s")</div>
+                <div class="display-6">@summary.LongestStreak day@(summary.LongestStreak == 1 ? "" : "s")</div>
                 <div class="small text-muted">Your personal best. Days are counted in UTC.</div>
             </div>
         </div>
@@ -52,8 +52,7 @@
         <div class="col-sm-6 col-lg-3">
             <div class="card h-100 shadow-sm achievement-badge @(badge.Earned ? "border-success" : "achievement-locked")">
                 <div class="card-body text-center">
-                    <div class="achievement-icon" aria-hidden="true">@badge.Icon</div>
-                    <h3 class="h6 mt-2 mb-1">@badge.Title</h3>
+                    <h3 class="h6 mb-1">@badge.Title</h3>
                     <p class="small text-muted mb-2">@badge.Description</p>
                     @if (badge.Earned)
                     {
