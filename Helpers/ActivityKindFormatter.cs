@@ -9,6 +9,7 @@ public static class ActivityKindFormatter
             "lesson_completed" => "Lesson finished",
             "quiz_completed" => "Quiz taken",
             "practice_completed" => "Practice round",
+            "review_completed" => "Review session",
             _ => Capitalize(kind.Replace('_', ' '))
         };
 
