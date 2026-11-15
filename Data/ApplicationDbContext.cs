@@ -23,6 +23,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
 
+    public DbSet<QuestionReview> QuestionReviews => Set<QuestionReview>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -81,6 +83,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.Lesson)
                 .WithMany()
                 .HasForeignKey(e => e.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<QuestionReview>(entity =>
+        {
+            // One schedule row per learner per question.
+            entity.HasIndex(e => new { e.UserId, e.QuizQuestionId }).IsUnique();
+            // Speeds up "what is due now for this learner?".
+            entity.HasIndex(e => new { e.UserId, e.DueAtUtc });
+            entity.HasOne(e => e.Question)
+                .WithMany()
+                .HasForeignKey(e => e.QuizQuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.User)
                 .WithMany()
