@@ -28,6 +28,7 @@ builder.Services.AddAuthorization(options =>
 // App services (Scoped = one instance per HTTP request, safe to use with ApplicationDbContext).
 builder.Services.AddScoped<AchievementService>();
 builder.Services.AddScoped<LeaderboardService>();
+builder.Services.AddScoped<ReviewService>();
 
 builder.Services.AddControllers();
 builder.Services.AddRazorPages(options =>
