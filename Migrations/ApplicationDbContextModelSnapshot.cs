@@ -320,6 +320,46 @@ namespace Syphonic.Migrations
                     b.ToTable("LessonProgress");
                 });
 
+            modelBuilder.Entity("Syphonic.Models.QuestionReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Box")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DueAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastAnsweredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("QuizQuestionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TimesCorrect")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TimesSeen")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuizQuestionId");
+
+                    b.HasIndex("UserId", "DueAtUtc");
+
+                    b.HasIndex("UserId", "QuizQuestionId")
+                        .IsUnique();
+
+                    b.ToTable("QuestionReviews");
+                });
+
             modelBuilder.Entity("Syphonic.Models.QuizAttempt", b =>
                 {
                     b.Property<int>("Id")
@@ -515,6 +555,25 @@ namespace Syphonic.Migrations
                         .IsRequired();
 
                     b.Navigation("Lesson");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Syphonic.Models.QuestionReview", b =>
+                {
+                    b.HasOne("Syphonic.Models.QuizQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuizQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Syphonic.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
 
                     b.Navigation("User");
                 });

@@ -86,8 +86,24 @@ else if (result is not null)
         }
     </ol>
 
+    @if (User.Identity?.IsAuthenticated == true && result.Score < result.Total)
+    {
+        <p class="small text-muted">
+            The questions you missed are on your <a asp-page="/Practice/Review">review list</a>, so you can try them again without retaking the whole quiz.
+        </p>
+    }
+
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">Try again</a>
+        @if (result.Passed && Model.NextLesson is { } nextLesson)
+        {
+            <a class="btn btn-primary" asp-page="Detail" asp-route-slug="@nextLesson.Slug">Next lesson: @nextLesson.Title</a>
+            <a class="btn btn-outline-secondary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">Try again</a>
+        }
+        else
+        {
+            <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">Try again</a>
+            <a class="btn btn-outline-primary" asp-page="/Practice/Flashcards" asp-route-lesson="@Model.Lesson.Slug">Study with flashcards</a>
+        }
         <a class="btn btn-outline-secondary" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
         <a class="btn btn-link" asp-page="Index">All lessons</a>
     </div>
@@ -121,6 +137,7 @@ else
             }
         </ol>
         <button type="submit" class="btn btn-primary btn-lg">Submit answers</button>
+        <a class="btn btn-link" asp-page="/Practice/Flashcards" asp-route-lesson="@Model.Lesson.Slug">Warm up with flashcards</a>
         <a class="btn btn-link" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
     </form>
 }

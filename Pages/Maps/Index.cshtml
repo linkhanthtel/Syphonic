@@ -9,51 +9,68 @@
           crossorigin="" />
 }
 
-<h1 class="mb-3">Maps lab</h1>
-<p class="lead text-muted mb-4">
-    Spin up an interactive atlas powered by Leaflet + OpenStreetMap tiles. Geography lessons link naturally to whichever regional story you unlock next.
+<h1 class="mb-1">Map explorer</h1>
+<p class="text-muted mb-4">
+    Click any country to see its capital, population, languages and neighbours. Colour the map by a statistic, or test yourself with the find-the-country challenge.
 </p>
 
-<div id="syphonic-map-app" class="mb-5">
-    <div class="d-flex flex-column flex-xl-row gap-3 align-items-xl-center mb-3">
-        <span class="text-muted fw-semibold text-uppercase small mb-2 mb-xl-0">Regional views</span>
+@* The script reads the two data file addresses from here, so they work wherever the app is hosted. *@
+<div id="syphonic-map-app" class="mb-4"
+     data-countries-url="@Url.Content("~/data/countries.json")"
+     data-shapes-url="@Url.Content("~/data/country-shapes.json")">
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <span class="text-muted fw-semibold small me-1">Region</span>
         <div class="d-flex flex-wrap gap-2" data-map-presets></div>
     </div>
 
-    <div id="map-leaflet"
-         role="presentation"
-         class="rounded border shadow-sm mb-3"
-         style="min-height:540px;"></div>
+    <div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+        @* Explore tools: hidden while a challenge is running, since searching would give the answer away. *@
+        <div class="d-flex flex-wrap align-items-end gap-3 flex-grow-1" data-explore-tools>
+            <form class="sy-map-search" data-country-search role="search">
+                <label class="form-label small text-muted mb-1" for="countrySearch">Find a country</label>
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" id="countrySearch" list="countryNames"
+                           placeholder="e.g. Japan" autocomplete="off" />
+                    <button class="btn btn-outline-primary" type="submit">Go</button>
+                </div>
+                <datalist id="countryNames"></datalist>
+            </form>
+            <div>
+                <label class="form-label small text-muted mb-1" for="colorBy">Colour countries by</label>
+                <select class="form-select form-select-sm" id="colorBy" data-color-by>
+                    <option value="none">Nothing (plain map)</option>
+                    <option value="population">Population</option>
+                    <option value="area">Area</option>
+                    <option value="density">Population density</option>
+                </select>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-random-country>Surprise me</button>
+        </div>
+        <button class="btn btn-sm btn-primary" type="button" data-challenge-toggle>Start challenge</button>
+    </div>
 
-    <p class="small text-muted mb-0">
-        Tiles © OpenStreetMap contributors.
-        Prefer hosted layers for classrooms? Toggle additional map styles or GeoJSON overlays in <code class="small">maps-lab.js</code>.
+    <div class="small text-danger mb-2" data-map-message role="status"></div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div id="map-leaflet" class="sy-map rounded border shadow-sm" aria-label="World map. Use the search box to pick a country without the map."></div>
+            <div class="sy-map-legend small mt-2" data-map-legend hidden></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm sy-country-panel">
+                <div class="card-body" data-country-panel aria-live="polite">
+                    <h2 class="h5">Pick a country</h2>
+                    <p class="small text-muted mb-0">Click the map, search by name, or press “Surprise me”. Country facts appear here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3 mb-0">
+        Map tiles © OpenStreetMap contributors. Borders, population estimates (around 2019) and capital locations from Natural Earth.
+        Other country facts from the open “world-countries” dataset (ODbL). Small island states have no outline at this map scale, but search still finds them.
     </p>
-
-    <p class="fw-semibold text-muted mb-2 mt-3" data-map-meta>Focus: World overview</p>
-</div>
-
-<div class="row g-3">
-    <div class="col-md-6">
-        <article class="card border-0 bg-body-secondary h-100">
-            <div class="card-body">
-                <h2 class="h5">Teach geography in context</h2>
-                <p class="small mb-2">Embed quick challenges: capitals guessing, biome comparisons, watershed tracing.</p>
-                <p class="small text-muted mb-0">Lesson slugs sync easily with bookmarks so `/Lessons/[slug]?map=AFRICA` can become a UX affordance soon.</p>
-            </div>
-        </article>
-    </div>
-    <div class="col-md-6">
-        <article class="card border-0 bg-body-secondary h-100">
-            <div class="card-body">
-                <h2 class="h5">Developer hooks</h2>
-                <p class="small mb-3">Reuse the learner catalog programmatically:</p>
-                <a class="btn btn-sm btn-outline-primary" href="/api/lessons/published">
-                    GET /api/lessons/published
-                </a>
-            </div>
-        </article>
-    </div>
 </div>
 
 @section Scripts {

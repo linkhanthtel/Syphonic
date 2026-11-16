@@ -18,12 +18,14 @@ public class IndexModel : PageModel
     private readonly ApplicationDbContext _db;
     private readonly AchievementService _achievements;
     private readonly LeaderboardService _leaderboard;
+    private readonly ReviewService _reviews;
 
-    public IndexModel(ApplicationDbContext db, AchievementService achievements, LeaderboardService leaderboard)
+    public IndexModel(ApplicationDbContext db, AchievementService achievements, LeaderboardService leaderboard, ReviewService reviews)
     {
         _db = db;
         _achievements = achievements;
         _leaderboard = leaderboard;
+        _reviews = reviews;
     }
 
     public int PublishedLessonCount { get; private set; }
@@ -52,6 +54,26 @@ public class IndexModel : PageModel
     public AchievementSummary? Achievements { get; private set; }
 
     public LeaderboardEntry? MyRank { get; private set; }
+
+    // ----- Today's study plan (signed-in learners) -----
+
+    /// <summary>Questions on the review list that are due now.</summary>
+    public int ReviewsDue { get; private set; }
+
+    public bool ReviewedToday { get; private set; }
+
+    public bool FinishedLessonToday { get; private set; }
+
+    public bool PractisedToday { get; private set; }
+
+    /// <summary>How many of the three plan steps are done today.</summary>
+    public int PlanStepsDone =>
+        (ReviewStepDone ? 1 : 0) + (LessonStepDone ? 1 : 0) + (PractisedToday ? 1 : 0);
+
+    /// <summary>Done when no question is waiting on the review list.</summary>
+    public bool ReviewStepDone => ReviewsDue == 0;
+
+    public bool LessonStepDone => FinishedLessonToday || ContinueLesson is null;
 
     public sealed record LessonCard(string Title, string Slug, string? Summary, int QuestionCount, LessonState State);
 
@@ -94,6 +116,21 @@ public class IndexModel : PageModel
 
             Achievements = await _achievements.GetSummaryAsync(userId, cancellationToken);
             MyRank = leaderboard.FirstOrDefault(e => e.UserId == userId);
+
+            ReviewsDue = await _reviews.CountDueAsync(userId, cancellationToken);
+
+            // SQLite cannot filter DateTimeOffset in SQL, so take the latest rows and check the date in memory.
+            var recent = await _db.UserActivities.AsNoTracking()
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.Id)
+                .Take(60)
+                .Select(a => new { a.Kind, a.CreatedAt })
+                .ToListAsync(cancellationToken);
+            var today = DateTimeOffset.UtcNow.Date;
+            var kindsToday = recent.Where(a => a.CreatedAt.UtcDateTime.Date == today).Select(a => a.Kind).ToHashSet();
+            ReviewedToday = kindsToday.Contains("review_completed");
+            FinishedLessonToday = kindsToday.Contains("lesson_completed");
+            PractisedToday = kindsToday.Contains("practice_completed") || kindsToday.Contains("quiz_completed");
         }
 
         var cards = lessons.ConvertAll(l =>

@@ -21,6 +21,11 @@ public class DetailModel : PageModel
 
     public string LessonHtml { get; private set; } = string.Empty;
 
+    public int ReadingMinutes { get; private set; }
+
+    /// <summary>Section headings inside the lesson, for the "On this page" list.</summary>
+    public IReadOnlyList<LessonHeading> Outline { get; private set; } = Array.Empty<LessonHeading>();
+
     public LessonProgress? Progress { get; private set; }
 
     public bool IsCompleted => Progress?.CompletedAt is not null;
@@ -55,6 +60,8 @@ public class DetailModel : PageModel
             return NotFound();
 
         LessonHtml = LessonMarkdown.ToHtml(Lesson.Content);
+        ReadingMinutes = LessonMarkdown.EstimateReadingMinutes(Lesson.Content);
+        Outline = LessonMarkdown.GetOutline(LessonHtml);
         QuestionCount = await _db.QuizQuestions.CountAsync(q => q.LessonId == Lesson.Id, cancellationToken);
         await LoadNeighboursAsync(Lesson, cancellationToken);
 

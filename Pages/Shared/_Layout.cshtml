@@ -1,6 +1,8 @@
 @using Microsoft.AspNetCore.Identity
 @using Syphonic.Data
+@using System.Security.Claims
 @inject SignInManager<ApplicationUser> SignInManager
+@inject Syphonic.Services.ReviewService Reviews
 @{
     // Work out which section we are in so the matching nav link can be highlighted.
     var currentPage = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
@@ -16,6 +18,10 @@
     string? AriaCurrent(string prefix) => IsSection(prefix) ? "page" : null;
 
     var signedIn = SignInManager.IsSignedIn(User);
+
+    // Questions waiting on the learner's review list, shown as a count beside "Practice".
+    var reviewUserId = signedIn ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
+    var reviewsDue = reviewUserId is null ? 0 : await Reviews.CountDueAsync(reviewUserId);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +51,13 @@
                         <a class="nav-link @ActiveClass("/Lessons")" aria-current="@AriaCurrent("/Lessons")" asp-area="" asp-page="/Lessons/Index">Lessons</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @ActiveClass("/Practice")" aria-current="@AriaCurrent("/Practice")" asp-area="" asp-page="/Practice/Index">Practice</a>
+                        <a class="nav-link @ActiveClass("/Practice")" aria-current="@AriaCurrent("/Practice")" asp-area="" asp-page="/Practice/Index">
+                            Practice
+                            @if (reviewsDue > 0)
+                            {
+                                <span class="badge rounded-pill text-bg-primary">@reviewsDue<span class="visually-hidden"> questions due for review</span></span>
+                            }
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @ActiveClass("/Maps")" aria-current="@AriaCurrent("/Maps")" asp-area="" asp-page="/Maps/Index">Maps</a>
@@ -75,6 +87,8 @@
     <div class="container small d-flex flex-wrap gap-3 justify-content-between align-items-center">
         <span>&copy; @DateTime.UtcNow.Year Syphonic · Geography practice for everyone</span>
         <nav aria-label="Footer">
+            <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Practice/Flashcards">Flashcards</a>
+            <span class="text-muted mx-2" aria-hidden="true">·</span>
             <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Learn/Index">How we teach</a>
             <span class="text-muted mx-2" aria-hidden="true">·</span>
             <a class="link-secondary text-decoration-none" asp-area="" asp-page="/Privacy">Privacy</a>

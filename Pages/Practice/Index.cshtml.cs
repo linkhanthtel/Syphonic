@@ -21,10 +21,12 @@ public class IndexModel : PageModel
     public static readonly int[] CountChoices = [3, 5, 10];
 
     private readonly ApplicationDbContext _db;
+    private readonly ReviewService _reviews;
 
-    public IndexModel(ApplicationDbContext db)
+    public IndexModel(ApplicationDbContext db, ReviewService reviews)
     {
         _db = db;
+        _reviews = reviews;
     }
 
     public IReadOnlyList<QuizQuestion> Questions { get; private set; } = Array.Empty<QuizQuestion>();
@@ -77,6 +79,8 @@ public class IndexModel : PageModel
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId is not null)
         {
+            // Missed questions go onto the learner's review list; correct ones are scheduled for later.
+            await _reviews.RecordAsync(userId, Result.Items, cancellationToken);
             _db.UserActivities.Add(new UserActivity
             {
                 UserId = userId,

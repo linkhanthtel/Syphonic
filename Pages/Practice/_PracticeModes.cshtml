@@ -1,0 +1,25 @@
+@* Tabs shared by the three ways to practise. The model is the key of the active tab: "mixed", "review" or "flashcards". *@
+@model string
+@using System.Security.Claims
+@inject Syphonic.Services.ReviewService Reviews
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var due = userId is null ? 0 : await Reviews.CountDueAsync(userId);
+}
+<ul class="nav nav-tabs mb-4" aria-label="Ways to practise">
+    <li class="nav-item">
+        <a class="nav-link @(Model == "mixed" ? "active" : null)" aria-current="@(Model == "mixed" ? "page" : null)" asp-page="/Practice/Index">Mixed round</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "review" ? "active" : null)" aria-current="@(Model == "review" ? "page" : null)" asp-page="/Practice/Review">
+            Review
+            @if (due > 0)
+            {
+                <span class="badge rounded-pill text-bg-primary">@due<span class="visually-hidden"> due</span></span>
+            }
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "flashcards" ? "active" : null)" aria-current="@(Model == "flashcards" ? "page" : null)" asp-page="/Practice/Flashcards">Flashcards</a>
+    </li>
+</ul>

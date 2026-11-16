@@ -11,10 +11,12 @@ namespace Syphonic.Pages.Lessons;
 public class QuizModel : PageModel
 {
     private readonly ApplicationDbContext _db;
+    private readonly ReviewService _reviews;
 
-    public QuizModel(ApplicationDbContext db)
+    public QuizModel(ApplicationDbContext db, ReviewService reviews)
     {
         _db = db;
+        _reviews = reviews;
     }
 
     public Lesson Lesson { get; private set; } = null!;
@@ -33,6 +35,9 @@ public class QuizModel : PageModel
     public int? BestPercent { get; private set; }
 
     public int AttemptCount { get; private set; }
+
+    /// <summary>The lesson after this one in course order, offered once the quiz is passed.</summary>
+    public Lesson? NextLesson { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(string slug, CancellationToken cancellationToken)
     {
@@ -65,6 +70,9 @@ public class QuizModel : PageModel
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId is not null)
         {
+            // Missed questions go onto the learner's review list; correct ones are scheduled for later.
+            await _reviews.RecordAsync(userId, Result.Items, cancellationToken);
+
             _db.QuizAttempts.Add(new QuizAttempt
             {
                 UserId = userId,
@@ -105,6 +113,13 @@ public class QuizModel : PageModel
             .Where(q => q.LessonId == lesson.Id)
             .OrderBy(q => q.OrderIndex).ThenBy(q => q.Id)
             .ToListAsync(cancellationToken);
+
+        NextLesson = await _db.Lessons.AsNoTracking()
+            .Where(l => l.Published && l.Id != lesson.Id
+                && (l.OrderIndex > lesson.OrderIndex
+                    || (l.OrderIndex == lesson.OrderIndex && string.Compare(l.Title, lesson.Title) > 0)))
+            .OrderBy(l => l.OrderIndex).ThenBy(l => l.Title)
+            .FirstOrDefaultAsync(cancellationToken);
 
         return true;
     }

@@ -100,6 +100,77 @@
     </div>
 </section>
 
+@* ---------- Today's study plan: three short steps in the order that helps memory most ---------- *@
+@if (Model.IsSignedIn)
+{
+    <section class="mb-5" aria-labelledby="plan-heading">
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+            <h2 id="plan-heading" class="h4 mb-0">Today's study plan</h2>
+            <span class="small text-muted">@Model.PlanStepsDone of 3 done</span>
+        </div>
+        <ol class="list-group list-group-numbered shadow-sm sy-plan">
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                <div class="flex-grow-1 ms-2">
+                    <div class="fw-semibold">
+                        Review what is due
+                        @if (Model.ReviewStepDone) { <span class="badge text-bg-success ms-1">Done</span> }
+                    </div>
+                    <div class="small text-muted">
+                        @if (Model.ReviewsDue > 0)
+                        {
+                            <span>@Model.ReviewsDue question@(Model.ReviewsDue == 1 ? "" : "s") you answered before @(Model.ReviewsDue == 1 ? "is" : "are") ready to come back.</span>
+                        }
+                        else if (Model.ReviewedToday)
+                        {
+                            <span>Review list cleared for today.</span>
+                        }
+                        else
+                        {
+                            <span>Nothing is due. Questions arrive here after quizzes and practice rounds.</span>
+                        }
+                    </div>
+                </div>
+                @if (Model.ReviewsDue > 0)
+                {
+                    <a class="btn btn-sm btn-primary" asp-page="/Practice/Review">Start review</a>
+                }
+            </li>
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                <div class="flex-grow-1 ms-2">
+                    <div class="fw-semibold">
+                        Learn something new
+                        @if (Model.LessonStepDone) { <span class="badge text-bg-success ms-1">Done</span> }
+                    </div>
+                    <div class="small text-muted">
+                        @if (Model.ContinueLesson is { } planLesson)
+                        {
+                            <span>@(Model.FinishedLessonToday ? "Want another? Next up" : planLesson.State == IndexModel.LessonState.InProgress ? "Finish" : "Read"): @planLesson.Title</span>
+                        }
+                        else
+                        {
+                            <span>You have finished every published lesson.</span>
+                        }
+                    </div>
+                </div>
+                @if (Model.ContinueLesson is { } planNext)
+                {
+                    <a class="btn btn-sm @(Model.LessonStepDone ? "btn-outline-secondary" : "btn-primary")" asp-page="/Lessons/Detail" asp-route-slug="@planNext.Slug">Open lesson</a>
+                }
+            </li>
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                <div class="flex-grow-1 ms-2">
+                    <div class="fw-semibold">
+                        Test yourself
+                        @if (Model.PractisedToday) { <span class="badge text-bg-success ms-1">Done</span> }
+                    </div>
+                    <div class="small text-muted">A quiz or a five-question mixed round keeps older lessons fresh.</div>
+                </div>
+                <a class="btn btn-sm @(Model.PractisedToday ? "btn-outline-secondary" : "btn-primary")" asp-page="/Practice/Index">Practice round</a>
+            </li>
+        </ol>
+    </section>
+}
+
 @* ---------- Everything you can do, one tile each ---------- *@
 <section class="mb-5" aria-labelledby="explore-heading">
     <h2 id="explore-heading" class="h4 mb-3">Explore Syphonic</h2>
@@ -116,15 +187,15 @@
             <a class="card sy-tile h-100 text-decoration-none" asp-page="/Practice/Index">
                 <div class="card-body">
                     <h3 class="h6 mb-1">Practice</h3>
-                    <p class="small text-muted mb-0">Mixed questions drawn from every lesson.</p>
+                    <p class="small text-muted mb-0">Mixed rounds, spaced review and flashcards.</p>
                 </div>
             </a>
         </div>
         <div class="col-6 col-lg-3">
             <a class="card sy-tile h-100 text-decoration-none" asp-page="/Maps/Index">
                 <div class="card-body">
-                    <h3 class="h6 mb-1">Map lab</h3>
-                    <p class="small text-muted mb-0">An interactive atlas with continent presets.</p>
+                    <h3 class="h6 mb-1">Map explorer</h3>
+                    <p class="small text-muted mb-0">Country facts, map colouring and a find-the-country challenge.</p>
                 </div>
             </a>
         </div>
@@ -254,7 +325,7 @@
                 <div class="sy-step" aria-hidden="true">2</div>
                 <div>
                     <h3 class="h6 mb-1">Check yourself</h3>
-                    <p class="small text-muted mb-0">Take the lesson quiz or a mixed practice round. Score 70% to pass.</p>
+                    <p class="small text-muted mb-0">Warm up with flashcards, then take the lesson quiz. Score 70% to pass.</p>
                 </div>
             </div>
         </div>
@@ -262,8 +333,8 @@
             <div class="d-flex gap-3">
                 <div class="sy-step" aria-hidden="true">3</div>
                 <div>
-                    <h3 class="h6 mb-1">Watch your progress</h3>
-                    <p class="small text-muted mb-0">Streaks, badges, charts and a leaderboard rank keep you coming back.</p>
+                    <h3 class="h6 mb-1">Review before you forget</h3>
+                    <p class="small text-muted mb-0">Missed questions come back straight away, known ones days later, so facts stay.</p>
                 </div>
             </div>
         </div>

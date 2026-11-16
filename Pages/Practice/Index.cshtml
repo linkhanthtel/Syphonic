@@ -6,10 +6,14 @@
     var result = Model.Result;
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+<h1 class="mb-1">Practice</h1>
+<p class="text-muted mb-3">Random questions mixed from every lesson. A new set is drawn each round.</p>
+
+<partial name="_PracticeModes" model='"mixed"' />
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
     <div>
-        <h1 class="mb-1">Practice round</h1>
-        <p class="text-muted mb-0">Random questions mixed from every lesson. A new set is drawn each round.</p>
+        <h2 class="h5 mb-0">Mixed round</h2>
     </div>
     @if (result is null && Model.Questions.Count > 0)
     {
@@ -88,6 +92,10 @@ else if (result is not null)
 
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-primary" asp-page="Index" asp-route-count="@result.Total">New round</a>
+        @if (User.Identity?.IsAuthenticated == true && result.Score < result.Total)
+        {
+            <a class="btn btn-outline-primary" asp-page="Review">Review missed questions</a>
+        }
         <a class="btn btn-outline-secondary" asp-page="/Lessons/Index">Back to lessons</a>
     </div>
 }

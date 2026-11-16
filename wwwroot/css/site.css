@@ -354,3 +354,138 @@ footer.footer {
         transition: none;
     }
 }
+
+/* ---------- Map explorer ---------- */
+.sy-map {
+    height: 540px;
+}
+
+/* During the challenge the street map is removed, so give the sea a plain colour. */
+/* Two classes so this beats Leaflet's own grey .leaflet-container background, which loads later. */
+.sy-map.sy-map-challenge {
+    background-color: #f1f5fb;
+}
+
+/* Bootstrap's .d-flex would otherwise override the hidden attribute. */
+[data-explore-tools][hidden] {
+    display: none !important;
+}
+
+.sy-map-search {
+    flex: 1 1 14rem;
+    max-width: 20rem;
+}
+
+.sy-map-legend-item {
+    display: inline-block;
+    margin-right: 1rem;
+    white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+    .sy-country-panel {
+        max-height: 540px;
+        overflow-y: auto;
+    }
+}
+
+/* ---------- Study tools ---------- */
+/* The count of review questions due, beside "Practice" in the dark navbar. */
+.sy-navbar .nav-link .badge {
+    font-weight: 600;
+    vertical-align: text-top;
+}
+
+/* Home: today's study plan. */
+.sy-plan .list-group-item {
+    padding-bottom: .85rem;
+    padding-top: .85rem;
+}
+
+/* Lesson page: reading progress, pinned just under the sticky navbar. */
+.sy-read-progress {
+    height: 3px;
+    left: 0;
+    pointer-events: none;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1030;
+}
+
+.sy-read-progress > div {
+    background-color: #2a78d6;
+    height: 100%;
+    width: 0;
+}
+
+/* Clicking an "On this page" link must not hide the heading behind the sticky navbar. */
+.lesson-markdown h2,
+.lesson-markdown h3 {
+    scroll-margin-top: 5rem;
+}
+
+.sy-outline {
+    padding-left: 1.25rem;
+}
+
+.sy-outline li {
+    padding: .1rem 0;
+}
+
+.sy-outline .sy-outline-sub {
+    font-size: .9rem;
+    list-style: none;
+    margin-left: 1rem;
+}
+
+/* Flashcards */
+.sy-deck-picker {
+    max-width: 28rem;
+}
+
+.sy-flash {
+    max-width: 42rem;
+}
+
+/* Bootstrap's .d-flex would otherwise override the hidden attribute on the button rows. */
+.sy-flash [hidden] {
+    display: none !important;
+}
+
+.sy-flash-card {
+    border-width: 2px;
+    min-height: 15rem;
+    padding: 0;
+}
+
+.sy-flash-card:hover,
+.sy-flash-card:focus-visible {
+    border-color: #2a78d6;
+}
+
+.sy-flash-card .card-body {
+    min-height: 15rem;
+}
+
+.sy-flash-side {
+    color: var(--bs-secondary-color);
+    letter-spacing: .06em;
+    margin-bottom: .75rem;
+}
+
+.sy-flash-text {
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+/* The answer side is tinted so it is clear at a glance which side is showing. */
+.sy-flash-card-back {
+    background-color: #eef5fd;
+    border-color: #2a78d6;
+}
+
+.sy-flash-card-back .sy-flash-side {
+    color: #1c5cab;
+}

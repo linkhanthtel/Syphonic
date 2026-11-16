@@ -1,0 +1,101 @@
+@page
+@model FlashcardsModel
+@{
+    ViewData["Title"] = "Flashcards";
+}
+
+<h1 class="mb-1">Flashcards</h1>
+<p class="text-muted mb-3">
+    Say the answer in your head, then turn the card to check. Nothing here is graded, so it is a good warm-up before a quiz.
+</p>
+
+<partial name="_PracticeModes" model='"flashcards"' />
+
+@if (Model.Decks.Count == 0)
+{
+    <div class="alert alert-info">There are no cards yet. Cards are made from lesson quiz questions.</div>
+    <a class="btn btn-outline-secondary" asp-page="/Lessons/Index">Browse lessons</a>
+}
+else
+{
+    <form method="get" class="sy-deck-picker mb-4">
+        <label class="form-label small text-muted mb-1" for="deck">Deck</label>
+        <div class="input-group">
+            <select class="form-select" id="deck" name="lesson">
+                <option value="">All lessons mixed</option>
+                @foreach (var deck in Model.Decks)
+                {
+                    <option value="@deck.Slug" selected="@(deck.Slug == Model.Lesson)">@deck.Title (@deck.CardCount)</option>
+                }
+            </select>
+            <button class="btn btn-outline-primary" type="submit">Open deck</button>
+        </div>
+    </form>
+
+    <div id="flashcards" class="sy-flash">
+        @* ---------- One card at a time ---------- *@
+        <div data-flash-study>
+            <div class="d-flex justify-content-between align-items-baseline small text-muted mb-2">
+                <span data-flash-position aria-live="polite"></span>
+                <span data-flash-tally></span>
+            </div>
+            <div class="progress mb-3" style="height: .4rem" aria-hidden="true">
+                <div class="progress-bar sy-bar-fill" data-flash-progress style="width: 0"></div>
+            </div>
+
+            <button type="button" class="card sy-flash-card shadow-sm w-100 text-start" data-flash-card
+                    aria-describedby="flash-hint">
+                <span class="card-body d-flex flex-column w-100">
+                    <span class="sy-flash-side text-uppercase small fw-semibold" data-flash-side></span>
+                    <span class="sy-flash-text" data-flash-text aria-live="polite"></span>
+                    <span class="small text-muted mt-3" data-flash-explanation hidden></span>
+                    <span class="small text-muted mt-auto pt-3" data-flash-lesson></span>
+                </span>
+            </button>
+            <p id="flash-hint" class="small text-muted mt-2 mb-3">
+                Select the card or press Space to turn it. Use the Left and Right arrow keys to move between cards.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2" data-flash-front-actions>
+                <button type="button" class="btn btn-outline-secondary" data-flash-prev>Previous</button>
+                <button type="button" class="btn btn-primary" data-flash-flip>Show answer</button>
+                <button type="button" class="btn btn-outline-secondary" data-flash-next>Skip</button>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2" data-flash-back-actions hidden>
+                <span class="small text-muted me-1">Did you know it?</span>
+                <button type="button" class="btn btn-outline-secondary" data-flash-mark="again">Still learning</button>
+                <button type="button" class="btn btn-primary" data-flash-mark="known">I knew it</button>
+            </div>
+        </div>
+
+        @* ---------- End of deck ---------- *@
+        <div class="card shadow-sm" data-flash-done hidden>
+            <div class="card-body">
+                <h2 class="h5" data-flash-done-title tabindex="-1"></h2>
+                <p class="text-muted" data-flash-done-text></p>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary" data-flash-retry hidden>Repeat the cards I missed</button>
+                    <button type="button" class="btn btn-outline-primary" data-flash-restart>Shuffle and start again</button>
+                    @if (!string.IsNullOrWhiteSpace(Model.Lesson))
+                    {
+                        <a class="btn btn-outline-secondary" asp-page="/Lessons/Quiz" asp-route-slug="@Model.Lesson">Take the quiz</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-secondary" asp-page="Index">Mixed practice round</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <noscript>
+        <div class="alert alert-warning mt-3">Flashcards need JavaScript. The lesson quizzes work without it.</div>
+    </noscript>
+
+    <script id="flashcards-data" type="application/json">@Html.Raw(Json.Serialize(Model.Cards))</script>
+}
+
+@section Scripts {
+    <script src="~/js/flashcards.js" asp-append-version="true"></script>
+}

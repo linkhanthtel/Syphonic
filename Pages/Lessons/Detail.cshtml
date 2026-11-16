@@ -42,7 +42,11 @@ else
                 <p class="lead text-muted mb-1">@Model.Lesson.Summary</p>
             }
             <p class="small text-muted mb-0">
-                Lesson content is written in Markdown; headings, emphasis, lists, fences, links, etc. render below.
+                About @Model.ReadingMinutes min read
+                @if (Model.QuestionCount > 0)
+                {
+                    <span>· @Model.QuestionCount-question quiz at the end</span>
+                }
             </p>
         </header>
         @if (!Model.Lesson.Published && User.IsInRole("Admin"))
@@ -50,7 +54,25 @@ else
             <div class="alert alert-secondary">Draft preview (admins-only until you publish).</div>
         }
 
-        <div class="lesson-markdown lesson-body border rounded bg-body-secondary p-4 mb-4">
+        @* A thin bar under the navbar that fills as the learner scrolls through the lesson text. *@
+        <div class="sy-read-progress" aria-hidden="true"><div data-read-progress></div></div>
+
+        @if (Model.Outline.Count >= 2)
+        {
+            <nav class="card shadow-sm mb-4" aria-labelledby="outline-heading">
+                <div class="card-body">
+                    <h2 id="outline-heading" class="h6">On this page</h2>
+                    <ol class="sy-outline mb-0">
+                        @foreach (var heading in Model.Outline)
+                        {
+                            <li class="@(heading.Level == 3 ? "sy-outline-sub" : null)"><a href="#@heading.Id">@heading.Text</a></li>
+                        }
+                    </ol>
+                </div>
+            </nav>
+        }
+
+        <div class="lesson-markdown lesson-body border rounded bg-body-secondary p-4 mb-4" data-lesson-body>
             @Html.Raw(Model.LessonHtml)
         </div>
 
@@ -61,16 +83,19 @@ else
                     <div>
                         <h2 class="h5 mb-1">Check your understanding</h2>
                         <p class="text-muted small mb-0">
-                            @Model.QuestionCount quick question@(Model.QuestionCount == 1 ? "" : "s") on this lesson.
+                            @Model.QuestionCount quick question@(Model.QuestionCount == 1 ? "" : "s") on this lesson. Recalling the answers is what makes them stick.
                             @if (Model.BestQuizPercent is int best)
                             {
                                 <span>Your best score so far: <strong class="text-body">@best%</strong>.</span>
                             }
                         </p>
                     </div>
-                    <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">
-                        @(Model.BestQuizPercent is null ? "Take the quiz" : "Retake the quiz")
-                    </a>
+                    <div class="d-flex flex-wrap gap-2 flex-shrink-0">
+                        <a class="btn btn-outline-primary" asp-page="/Practice/Flashcards" asp-route-lesson="@Model.Lesson.Slug">Flashcards</a>
+                        <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">
+                            @(Model.BestQuizPercent is null ? "Take the quiz" : "Retake the quiz")
+                        </a>
+                    </div>
                 </div>
             </div>
         }
@@ -92,8 +117,12 @@ else
                 {
                     <form method="post" asp-page-handler="Complete" class="mb-0">
                         <input type="hidden" name="slug" value="@Model.Lesson.Slug" />
-                        <button type="submit" class="btn btn-primary">Mark as complete</button>
+                        <button type="submit" class="btn @(Model.QuestionCount > 0 ? "btn-outline-primary" : "btn-primary")">Mark as complete</button>
                     </form>
+                }
+                else if (Model.NextLesson is { } upNext)
+                {
+                    <a class="btn btn-primary" asp-page="Detail" asp-route-slug="@upNext.Slug">Next lesson: @upNext.Title</a>
                 }
             </section>
         }
@@ -131,4 +160,8 @@ else
             </nav>
         }
     </article>
+}
+
+@section Scripts {
+    <script src="~/js/lesson.js" asp-append-version="true"></script>
 }
