@@ -16,6 +16,21 @@ builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
+
+        // One address, one account: without this two learners could share an email.
+        options.User.RequireUniqueEmail = true;
+
+        // Length matters more than symbols, and one simple rule is easy to explain on the sign-up form.
+        // Keep the length in step with RegisterModel.MinPasswordLength.
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+
+        // Five wrong passwords lock the account for five minutes, which blunts password guessing.
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -29,6 +44,8 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<AchievementService>();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<ReviewService>();
+// Singleton = one shared instance: the country file is read once and never changes.
+builder.Services.AddSingleton<CountryData>();
 
 builder.Services.AddControllers();
 builder.Services.AddRazorPages(options =>
