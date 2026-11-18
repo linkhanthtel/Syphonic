@@ -54,6 +54,61 @@ public static class SeedData
 
         if (!await db.QuizQuestions.AnyAsync())
             await SeedQuizQuestionsAsync(db);
+
+        await SeedCatalogLessonsAsync(db);
+    }
+
+    /// <summary>
+    /// Adds every lesson in <see cref="LessonCatalog"/> whose slug is not in the database yet, with its quiz.
+    /// Lessons that already exist are left untouched, so edits made in the admin area are never overwritten.
+    /// Note: a catalog lesson deleted in the admin area comes back on the next start; unpublish it instead.
+    /// </summary>
+    private static async Task SeedCatalogLessonsAsync(ApplicationDbContext db)
+    {
+        var existingSlugs = (await db.Lessons.Select(l => l.Slug).ToListAsync()).ToHashSet();
+        var utc = DateTimeOffset.UtcNow;
+        var added = false;
+
+        foreach (var seed in LessonCatalog.Lessons)
+        {
+            if (existingSlugs.Contains(seed.Slug))
+                continue;
+
+            var lesson = new Lesson
+            {
+                Title = seed.Title,
+                Slug = seed.Slug,
+                Summary = seed.Summary,
+                Content = seed.Content,
+                OrderIndex = seed.Order,
+                Published = true,
+                CreatedAt = utc,
+                UpdatedAt = utc
+            };
+
+            var order = 0;
+            foreach (var question in seed.Questions)
+            {
+                order += 10;
+                lesson.Questions.Add(new QuizQuestion
+                {
+                    OrderIndex = order,
+                    Prompt = question.Prompt,
+                    OptionA = question.Options[0],
+                    OptionB = question.Options[1],
+                    OptionC = question.Options.ElementAtOrDefault(2),
+                    OptionD = question.Options.ElementAtOrDefault(3),
+                    CorrectOption = question.Correct,
+                    Explanation = question.Explanation
+                });
+            }
+
+            db.Lessons.Add(lesson);
+            added = true;
+        }
+
+        if (added)
+            await db.SaveChangesAsync();
     }
 
     /// <summary>
