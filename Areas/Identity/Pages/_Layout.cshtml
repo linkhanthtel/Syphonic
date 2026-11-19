@@ -1,0 +1,15 @@
+@*
+    The built-in account settings pages (/Identity/Account/Manage) ask for a layout at this exact path.
+    Without this file they fall back to the Identity library's own plain layout, which has no site menu.
+    This one simply passes everything through to the site layout.
+*@
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+@RenderBody()
+@section Styles {
+    @await RenderSectionAsync("Styles", required: false)
+}
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
