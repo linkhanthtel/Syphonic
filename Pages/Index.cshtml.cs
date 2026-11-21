@@ -130,7 +130,7 @@ public class IndexModel : PageModel
             var kindsToday = recent.Where(a => a.CreatedAt.UtcDateTime.Date == today).Select(a => a.Kind).ToHashSet();
             ReviewedToday = kindsToday.Contains("review_completed");
             FinishedLessonToday = kindsToday.Contains("lesson_completed");
-            PractisedToday = kindsToday.Contains("practice_completed") || kindsToday.Contains("quiz_completed");
+            PractisedToday = kindsToday.Contains("practice_completed") || kindsToday.Contains("quiz_completed") || kindsToday.Contains("drill_completed");
         }
 
         var cards = lessons.ConvertAll(l =>

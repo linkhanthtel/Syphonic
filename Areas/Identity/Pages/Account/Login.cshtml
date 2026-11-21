@@ -1,0 +1,57 @@
+@page
+@model Syphonic.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="sy-auth mx-auto">
+    <h1 class="h2 mb-1">Log in</h1>
+    <p class="text-muted mb-4">
+        @(Model.CameFromProtectedPage
+            ? "That page keeps personal progress, so it needs an account. Log in and you will be taken straight back."
+            : "Welcome back. Log in to pick up where you left off.")
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post" asp-route-returnUrl="@Model.ReturnUrl" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" inputmode="email" autofocus />
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between gap-2 mb-4">
+                    <div class="form-check">
+                        <input asp-for="Input.RememberMe" class="form-check-input" />
+                        <label asp-for="Input.RememberMe" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showPasswords" data-show-passwords />
+                        <label class="form-check-label" for="showPasswords">Show password</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Log in</button>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-center mt-3 mb-0">
+        New to Syphonic?
+        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create a free account</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

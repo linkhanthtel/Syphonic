@@ -1,0 +1,61 @@
+@page
+@model Syphonic.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<div class="sy-auth mx-auto">
+    <h1 class="h2 mb-1">Create your account</h1>
+    <p class="text-muted mb-4">Free, and it takes a minute. Your progress, quiz scores and review list are saved to your account and shown only to you.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post" asp-route-returnUrl="@Model.ReturnUrl" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.DisplayName" class="form-label"></label> <span class="text-muted small">(optional)</span>
+                    <input asp-for="Input.DisplayName" class="form-control" autocomplete="nickname" aria-describedby="displayNameHelp" />
+                    <div id="displayNameHelp" class="form-text">Shown on the leaderboard in place of your email. You can change it later.</div>
+                    <span asp-validation-for="Input.DisplayName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" inputmode="email" />
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-describedby="passwordHelp" />
+                    <div id="passwordHelp" class="form-text">At least @RegisterModel.MinPasswordLength characters. A short sentence works well.</div>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="showPasswords" data-show-passwords />
+                    <label class="form-check-label" for="showPasswords">Show passwords</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Create account</button>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-center mt-3 mb-0">
+        Already have an account?
+        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

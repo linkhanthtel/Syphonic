@@ -1,6 +1,12 @@
 @using Microsoft.AspNetCore.Identity
 @using Syphonic.Data
 @inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    // Prefer the name the learner chose; fall back to their email.
+    var account = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+    var accountName = !string.IsNullOrWhiteSpace(account?.DisplayName) ? account!.DisplayName : User.Identity?.Name ?? "Account";
+}
 <ul class="navbar-nav align-items-lg-center">
     @if (SignInManager.IsSignedIn(User))
     {
@@ -8,9 +14,13 @@
         <li class="nav-item dropdown">
             <button class="nav-link dropdown-toggle btn btn-link text-decoration-none sy-account-toggle" type="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="sy-account-name">@(User.Identity?.Name ?? "Account")</span>
+                <span class="sy-account-name">@accountName</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
+                @if (accountName != User.Identity?.Name)
+                {
+                    <li><span class="dropdown-item-text small text-muted sy-account-email">Signed in as @User.Identity?.Name</span></li>
+                }
                 <li><h6 class="dropdown-header">My learning</h6></li>
                 <li><a class="dropdown-item" asp-area="" asp-page="/Dashboard/Index">Dashboard</a></li>
                 <li><a class="dropdown-item" asp-area="" asp-page="/Bookmarks/Index">Saved lessons</a></li>
