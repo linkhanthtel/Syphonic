@@ -5,6 +5,8 @@
     var summary = Model.Summary;
 }
 
+<partial name="_Breadcrumbs" model="@(new Crumb[] { new("Dashboard", Url.Page("/Dashboard/Index")), new("Achievements") })" />
+
 <h1 class="mb-2">Achievements</h1>
 <p class="lead text-muted mb-4">
     You've earned <strong class="text-body">@summary.EarnedCount of @summary.Badges.Count</strong> badges.
