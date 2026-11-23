@@ -15,12 +15,38 @@
 }
 else
 {
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-page="Index">Lessons</a></li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.Lesson.Title</li>
-        </ol>
-    </nav>
+    <div class="sy-pagebar">
+        <partial name="_Breadcrumbs" model="@(new Crumb[] { new("Lessons", Url.Page("/Lessons/Index")), new(Model.Lesson.Title) })" />
+        @if (Model.Course.Count > 1)
+        {
+            @* Jump to any lesson without going back to the list. *@
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Lesson @Model.Position of @Model.Course.Count
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end sy-course-menu">
+                    <li><h6 class="dropdown-header">Jump to a lesson</h6></li>
+                    @for (var i = 0; i < Model.Course.Count; i++)
+                    {
+                        var item = Model.Course[i];
+                        <li>
+                            <a class="dropdown-item d-flex justify-content-between gap-3 @(item.IsCurrent ? "active" : null)"
+                               aria-current="@(item.IsCurrent ? "page" : null)"
+                               asp-page="Detail" asp-route-slug="@item.Slug">
+                                <span>@(i + 1). @item.Title</span>
+                                @if (item.IsCompleted)
+                                {
+                                    <span class="small @(item.IsCurrent ? null : "text-success") fw-semibold">Done</span>
+                                }
+                            </a>
+                        </li>
+                    }
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" asp-page="Index">See all lessons</a></li>
+                </ul>
+            </div>
+        }
+    </div>
 
     <article class="mt-3">
         <header class="mb-4">
@@ -138,12 +164,12 @@ else
 
         @if (Model.PreviousLesson is not null || Model.NextLesson is not null)
         {
-            <nav class="d-flex justify-content-between gap-3 border-top pt-4 mt-4" aria-label="Lesson navigation">
+            <nav class="d-flex justify-content-between gap-3 border-top pt-4 mt-4" aria-label="Previous and next lesson">
                 <div>
                     @if (Model.PreviousLesson is { } prev)
                     {
                         <a class="text-decoration-none" asp-page="Detail" asp-route-slug="@prev.Slug">
-                            <div class="small text-muted">Previous</div>
+                            <div class="small text-muted">Previous lesson</div>
                             <div class="fw-semibold">@prev.Title</div>
                         </a>
                     }
@@ -152,13 +178,15 @@ else
                     @if (Model.NextLesson is { } next)
                     {
                         <a class="text-decoration-none" asp-page="Detail" asp-route-slug="@next.Slug">
-                            <div class="small text-muted">Next</div>
+                            <div class="small text-muted">Next lesson</div>
                             <div class="fw-semibold">@next.Title</div>
                         </a>
                     }
                 </div>
             </nav>
         }
+
+        <partial name="_WhereNext" model="@(Model.QuestionCount > 0 ? new Crumb("Flashcards for this lesson", Url.Page("/Practice/Flashcards", new { lesson = Model.Lesson.Slug })) : null)" />
     </article>
 }
 
