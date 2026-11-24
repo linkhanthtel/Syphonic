@@ -40,6 +40,14 @@ public class DetailModel : PageModel
 
     public LessonLink? NextLesson { get; private set; }
 
+    /// <summary>Every lesson in course order, for the "Lesson 4 of 11" menu that jumps straight to any lesson.</summary>
+    public IReadOnlyList<CourseItem> Course { get; private set; } = Array.Empty<CourseItem>();
+
+    /// <summary>1-based position of this lesson in the course.</summary>
+    public int Position { get; private set; }
+
+    public sealed record CourseItem(string Title, string Slug, bool IsCurrent, bool IsCompleted);
+
     public sealed record LessonLink(string Title, string Slug);
 
     [TempData]
@@ -117,8 +125,8 @@ public class DetailModel : PageModel
     }
 
     /// <summary>
-    /// Finds the lessons just before and after this one in the course order, so
-    /// learners can move through the course without going back to the list.
+    /// Loads the course in order: the lessons just before and after this one, and the full list for the
+    /// lesson menu, so learners can move through the course without going back to the list.
     /// </summary>
     private async Task LoadNeighboursAsync(Lesson current, CancellationToken cancellationToken)
     {
@@ -131,7 +139,19 @@ public class DetailModel : PageModel
             .Select(l => new { l.Id, l.Title, l.Slug })
             .ToListAsync(cancellationToken);
 
+        // Only this learner's own progress, so the menu can mark the lessons they finished.
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var completedIds = userId is null
+            ? new HashSet<int>()
+            : (await _db.LessonProgress.AsNoTracking()
+                .Where(p => p.UserId == userId && p.CompletedAt != null)
+                .Select(p => p.LessonId)
+                .ToListAsync(cancellationToken)).ToHashSet();
+
+        Course = ordered.ConvertAll(l => new CourseItem(l.Title, l.Slug, l.Id == current.Id, completedIds.Contains(l.Id)));
+
         var index = ordered.FindIndex(l => l.Id == current.Id);
+        Position = index + 1;
         if (index > 0)
             PreviousLesson = new LessonLink(ordered[index - 1].Title, ordered[index - 1].Slug);
         if (index >= 0 && index < ordered.Count - 1)
