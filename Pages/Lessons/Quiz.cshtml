@@ -6,13 +6,10 @@
     var result = Model.Result;
 }
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="Index">Lessons</a></li>
-        <li class="breadcrumb-item"><a asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">@Model.Lesson.Title</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Quiz</li>
-    </ol>
-</nav>
+<div class="sy-pagebar">
+    <partial name="_Breadcrumbs" model="@(new Crumb[] { new("Lessons", Url.Page("/Lessons/Index")), new(Model.Lesson.Title, Url.Page("/Lessons/Detail", new { slug = Model.Lesson.Slug })), new("Quiz") })" />
+    <a class="btn btn-sm btn-outline-secondary" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to the lesson</a>
+</div>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
     <div>
@@ -104,9 +101,9 @@ else if (result is not null)
             <a class="btn btn-primary" asp-page="Quiz" asp-route-slug="@Model.Lesson.Slug">Try again</a>
             <a class="btn btn-outline-primary" asp-page="/Practice/Flashcards" asp-route-lesson="@Model.Lesson.Slug">Study with flashcards</a>
         }
-        <a class="btn btn-outline-secondary" asp-page="Detail" asp-route-slug="@Model.Lesson.Slug">Back to lesson</a>
-        <a class="btn btn-link" asp-page="Index">All lessons</a>
     </div>
+
+    <partial name="_WhereNext" model="@(new Crumb("Back to the lesson", Url.Page("/Lessons/Detail", new { slug = Model.Lesson.Slug })))" />
 }
 else
 {
