@@ -4,6 +4,20 @@
     ViewData["Title"] = "Flashcards";
 }
 
+@{
+    // Opened from a lesson: the trail leads back through that lesson. Otherwise it sits under Practice.
+    var crumbs = Model.LessonTitle is { } deckTitle && !string.IsNullOrWhiteSpace(Model.Lesson)
+        ? new Crumb[] { new("Lessons", Url.Page("/Lessons/Index")), new(deckTitle, Url.Page("/Lessons/Detail", new { slug = Model.Lesson })), new("Flashcards") }
+        : new Crumb[] { new("Practice", Url.Page("/Practice/Index")), new("Flashcards") };
+}
+<div class="sy-pagebar">
+    <partial name="_Breadcrumbs" model="crumbs" />
+    @if (Model.LessonTitle is not null && !string.IsNullOrWhiteSpace(Model.Lesson))
+    {
+        <a class="btn btn-sm btn-outline-secondary" asp-page="/Lessons/Detail" asp-route-slug="@Model.Lesson">Back to the lesson</a>
+    }
+</div>
+
 <h1 class="mb-1">Flashcards</h1>
 <p class="text-muted mb-3">
     Say the answer in your head, then turn the card to check. Nothing here is graded, so it is a good warm-up before a quiz.
@@ -88,6 +102,9 @@ else
             </div>
         </div>
     </div>
+
+    @* Always visible, so learners can leave the deck at any point, not only when it is finished. *@
+    <partial name="_WhereNext" model="@(Model.LessonTitle is not null && !string.IsNullOrWhiteSpace(Model.Lesson) ? new Crumb("Back to the lesson", Url.Page("/Lessons/Detail", new { slug = Model.Lesson })) : null)" />
 
     <noscript>
         <div class="alert alert-warning mt-3">Flashcards need JavaScript. The lesson quizzes work without it.</div>
