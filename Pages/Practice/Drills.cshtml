@@ -5,6 +5,8 @@
     var results = Model.Results;
 }
 
+<partial name="_Breadcrumbs" model="@(new Crumb[] { new("Practice", Url.Page("/Practice/Index")), new("Country drills") })" />
+
 <h1 class="mb-1">Country drills</h1>
 <p class="text-muted mb-3">
     Ten quick questions on capitals, continents or population, drawn from 194 countries. A new set every time.
@@ -87,6 +89,8 @@
         <a class="btn btn-primary" asp-page="Drills" asp-route-topic="@Model.Topic" asp-route-region="@(Model.Region == "all" ? null : Model.Region)">Same drill, new questions</a>
         <a class="btn btn-outline-secondary" asp-page="/Maps/Index">Look them up on the map</a>
     </div>
+
+    <partial name="_WhereNext" model="null" />
 }
 else if (Model.Topic is not null && Model.Questions.Count == 0)
 {
