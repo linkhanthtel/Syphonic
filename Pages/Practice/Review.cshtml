@@ -7,6 +7,8 @@
     var summary = Model.Summary;
 }
 
+<partial name="_Breadcrumbs" model="@(new Crumb[] { new("Practice", Url.Page("/Practice/Index")), new("Review") })" />
+
 <h1 class="mb-1">Review</h1>
 <p class="text-muted mb-3">
     Questions you have answered come back here just before you would forget them. Missed ones return straight away; ones you know wait longer each time.
@@ -119,8 +121,9 @@
             <a class="btn btn-primary" asp-page="Review">Review @summary.Due more</a>
         }
         <a class="btn @(summary.Due > 0 ? "btn-outline-secondary" : "btn-primary")" asp-page="Index">Mixed practice round</a>
-        <a class="btn btn-outline-secondary" asp-page="/Lessons/Index">Back to lessons</a>
     </div>
+
+    <partial name="_WhereNext" model="null" />
 }
 else if (Model.Questions.Count == 0)
 {

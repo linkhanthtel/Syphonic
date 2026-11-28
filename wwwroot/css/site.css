@@ -526,3 +526,82 @@ footer.footer {
         max-width: 34rem;
     }
 }
+
+/* ---------- Getting around ---------- */
+/* Breadcrumb trail on the left, page-specific buttons (lesson menu, back to the lesson) on the right. */
+.sy-pagebar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.sy-crumbs {
+    margin-bottom: 1rem;
+}
+
+.sy-pagebar .sy-crumbs {
+    margin-bottom: 0;
+}
+
+/* Long lesson titles wrap inside the trail instead of pushing the page sideways on a phone. */
+.sy-crumbs .breadcrumb-item {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* "Lesson 4 of 11" menu: scrolls when the course is long. */
+.sy-course-menu {
+    max-height: 60vh;
+    max-width: calc(100vw - 2rem);
+    min-width: min(22rem, calc(100vw - 2rem));
+    overflow-y: auto;
+}
+
+.sy-course-menu .dropdown-item {
+    white-space: normal;
+}
+
+/* Phone bottom bar. */
+.sy-bottombar {
+    background-color: #212529;
+    bottom: 0;
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, .08);
+    display: flex;
+    left: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed;
+    right: 0;
+    z-index: 1030;
+}
+
+.sy-bottombar a {
+    color: rgba(255, 255, 255, .75);
+    flex: 1 1 0;
+    font-size: .875rem;
+    font-weight: 500;
+    padding: .8rem .25rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+.sy-bottombar a:hover,
+.sy-bottombar a:focus-visible {
+    color: #fff;
+}
+
+/* The current section: brighter text and a blue line along the top edge. */
+.sy-bottombar a.active {
+    box-shadow: inset 0 3px 0 #2a78d6;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Keep the end of every page clear of the bottom bar. */
+@media (max-width: 991.98px) {
+    body {
+        padding-bottom: calc(3.25rem + env(safe-area-inset-bottom));
+    }
+}

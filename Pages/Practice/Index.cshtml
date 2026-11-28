@@ -6,6 +6,8 @@
     var result = Model.Result;
 }
 
+<partial name="_Breadcrumbs" model="@(new Crumb[] { new("Practice", Url.Page("/Practice/Index")), new("Mixed round") })" />
+
 <h1 class="mb-1">Practice</h1>
 <p class="text-muted mb-3">Random questions mixed from every lesson. A new set is drawn each round.</p>
 
@@ -96,8 +98,9 @@ else if (result is not null)
         {
             <a class="btn btn-outline-primary" asp-page="Review">Review missed questions</a>
         }
-        <a class="btn btn-outline-secondary" asp-page="/Lessons/Index">Back to lessons</a>
     </div>
+
+    <partial name="_WhereNext" model="null" />
 }
 else
 {

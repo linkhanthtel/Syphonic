@@ -4,6 +4,8 @@
     ViewData["Title"] = "Profile";
 }
 
+<partial name="_Breadcrumbs" model="@(new Crumb[] { new("Dashboard", Url.Page("/Dashboard/Index")), new("Profile") })" />
+
 <h1 class="mb-3">Profile overview</h1>
 <p class="lead text-muted mb-4">
     Personalize how Syphonic greets you while keeping security-sensitive changes inside the Identity account tools.

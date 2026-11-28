@@ -99,6 +99,27 @@
         </nav>
     </div>
 </footer>
+
+@* Phones: the main menu hides behind a button, so the four places learners move between most stay one tap away here. *@
+<nav class="sy-bottombar d-lg-none" aria-label="Quick">
+    <a class="@ActiveClass("/Index")" aria-current="@AriaCurrent("/Index")" asp-area="" asp-page="/Index">Home</a>
+    <a class="@ActiveClass("/Lessons")" aria-current="@AriaCurrent("/Lessons")" asp-area="" asp-page="/Lessons/Index">Lessons</a>
+    <a class="@ActiveClass("/Practice")" aria-current="@AriaCurrent("/Practice")" asp-area="" asp-page="/Practice/Index">
+        Practice
+        @if (reviewsDue > 0)
+        {
+            <span class="badge rounded-pill text-bg-primary">@reviewsDue<span class="visually-hidden"> due</span></span>
+        }
+    </a>
+    @if (signedIn)
+    {
+        <a class="@ActiveClass("/Dashboard")" aria-current="@AriaCurrent("/Dashboard")" asp-area="" asp-page="/Dashboard/Index">Dashboard</a>
+    }
+    else
+    {
+        <a asp-area="Identity" asp-page="/Account/Login">Log in</a>
+    }
+</nav>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
